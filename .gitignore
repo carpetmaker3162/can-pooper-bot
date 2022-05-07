@@ -1,5 +1,7 @@
 .vscode/settings.json
 token.txt
+report_logs.txt
+msg_count.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
