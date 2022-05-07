@@ -603,6 +603,7 @@ async def send_news(ctx: commands.Context, channel: discord.TextChannel):
     
     for paragraph in news_paragraphs:
         await channel.send(paragraph)
+        await asyncio.sleep(1)
         await channel.send("​")
         await asyncio.sleep(1)
 
