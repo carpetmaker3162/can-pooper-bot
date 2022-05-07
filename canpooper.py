@@ -592,7 +592,7 @@ async def police(ctx):
 
 @bot.command()
 async def send_news(ctx: commands.Context, channel: int):
-    channel = await bot.get_channel(channel)
+    channel = bot.get_channel(channel)
     # Check if the person is permitted to publish news articles
     if not ctx.author.id in POOPER_TIMES_PUBLISHERS:
         await ctx.reply("ur not permitted to publish articles bozo :joy_cat: :joy_cat: :joy_cat:")
