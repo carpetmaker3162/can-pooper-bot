@@ -32,6 +32,11 @@ police, animation = False, False
 lwords = tuple(open("/Users/neng/desktop/nengstuff/code/algorithm/words.txt", "r").read().split("\n"))
 t = 0
 
+POOPER_TIMES_PUBLISHERS = [
+    672892838995820553, # Neng
+    650439182204010496 # Yue
+]
+
 def product(s):
     res = 1
     for i in s:
@@ -583,6 +588,21 @@ async def police(ctx):
     global police
     police = not police
     await ctx.send(f"police mode is now `{police}`")
+
+@bot.command()
+async def send_news(ctx, channel: discord.TextChannel):
+    # Check if the person is permitted to publish news articles
+    if not ctx.author.id in POOPER_TIMES_PUBLISHERS:
+        await ctx.reply("ur not permitted to publish articles bozo :joy_cat: :joy_cat: :joy_cat:")
+        return
+    
+    news_file = open("news.txt")
+    news_message = news_file.read()
+    news_paragraphs = news_message.split("\n\n")
+    
+    for paragraph in news_paragraphs:
+        channel.send(paragraph)
+        channel.send("​")
 
 @bot.event
 async def on_message(message):
