@@ -16,6 +16,7 @@ from googletrans import Translator
 import textwrap
 from traceback import format_exception
 from emoji import demojize
+import asyncio
 
 import _brainfuck
 from police import police as _police
@@ -601,8 +602,9 @@ async def send_news(ctx, channel: discord.TextChannel):
     news_paragraphs = news_message.split("\n\n")
     
     for paragraph in news_paragraphs:
-        channel.send(paragraph)
-        channel.send("​")
+        await channel.send(paragraph)
+        await channel.send("​")
+        asyncio.sleep(1)
 
 @bot.event
 async def on_message(message):
