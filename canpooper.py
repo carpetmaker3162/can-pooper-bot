@@ -30,7 +30,7 @@ bot = commands.Bot(
 checkreaction, crossreaction, hourglass = '\N{WHITE HEAVY CHECK MARK}', '\N{CROSS MARK}', '\N{HOURGLASS}'
 blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], [], [], [], [], [], []
 police, animation = False, False
-lwords = tuple(open("/Users/neng/desktop/nengstuff/code/algorithm/words.txt", "r").read().split("\n"))
+lwords = tuple(open("words.txt", "r").read().split("\n"))
 t = 0
 
 POOPER_TIMES_PUBLISHERS = [
