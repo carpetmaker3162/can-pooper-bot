@@ -604,7 +604,7 @@ async def send_news(ctx: commands.Context, channel: discord.TextChannel):
     for paragraph in news_paragraphs:
         await channel.send(paragraph)
         await channel.send("​")
-        asyncio.sleep(1)
+        await asyncio.sleep(1)
 
 @bot.event
 async def on_message(message):
