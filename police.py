@@ -1,6 +1,6 @@
 import string
 
-lwords = tuple(open("/Users/neng/desktop/nengstuff/code/algorithm/words.txt", "r").read().split("\n"))
+lwords = tuple(open("words.txt", "r").read().split("\n"))
 
 def search_same_length(checkword):
     words = [w for w in lwords if sum(a != b for a, b in zip(checkword, w)) == 1]
