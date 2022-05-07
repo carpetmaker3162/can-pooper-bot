@@ -602,8 +602,7 @@ async def send_news(ctx: commands.Context, channel: discord.TextChannel):
     news_paragraphs = news_message.split("\n\n")
     
     for paragraph in news_paragraphs:
-        await channel.send(paragraph)
-        await channel.send("​")
+        await channel.send(paragraph + "\n​")
         await asyncio.sleep(1)
 
 @bot.event
