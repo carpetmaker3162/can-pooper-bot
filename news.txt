@@ -1,20 +1,25 @@
-**Welcome to OpenGL**
+**POOPER TIMES NEWS**
 
-Welcome to the online book for learning OpenGL! Whether you are trying to learn OpenGL for academic purposes, to pursue a career or simply looking for a hobby, this book will teach you the basics, the intermediate, and all the advanced knowledge using modern (core-profile) OpenGL. The aim of LearnOpenGL is to show you all there is to modern OpenGL in an easy-to-understand fashion with clear examples, while also providing a useful reference for later studies.
+Welcome, everyone, to the first issue of the Pooper Times, the most accurate, unbiased, and reliable new source in G9DE! Since this is the first issue on this server, we would like to begin by giving you an introduction to the Pooper Times.
 
-**So why read these chapters?**
+**Who are we?**
 
-Throughout the internet there are thousands of documents, books, and resources on learning OpenGL, however, most of these resources are only focused on OpenGL's immediate mode (commonly referred to as the old OpenGL), are incomplete, lack proper documentation, or are not suited for your learning preferences. Therefore, my aim is to provide a platform that is both complete and easy to understand.
-Image of smiling textured containers in OpenGL
+The Pooper Times is founded in May 2022 to produce high quality news material for the members of G9DE. Since then, we have changed a lot in terms of our budget, and alloted time, but our goal still remains the same: to provide you with the best quality news material available.
 
-If you enjoy reading content that provides step-by-step instructions, clear examples, and that won't throw you in the deep with millions of details, this book is probably for you. The chapters aim to be understandable for people without any graphics programming experience, but are still interesting to read for the more experienced users. We also discuss practical concepts that, with some added creativity, could turn your ideas into real 3D applications. If all of the previous sounds like someone that could be you, then by all means, please continue.
+**How often do we publish?**
 
-**What will you learn?**
+We do not abide by a strict publication schedule, as that often hurts the quality of our newspaper. However, we usually try to publish at least on issue every month. 
 
-The focus of these chapters are on Modern OpenGL. Learning (and using) modern OpenGL requires a strong knowledge of graphics programming and how OpenGL operates under the hood to really get the best of your experience. So we will start by discussing core graphics aspects, how OpenGL actually draws pixels to your screen, and how we can leverage that knowledge to create some funky looking effects.
+**Quality Standards**
 
-On top of the core knowledge we will discuss many useful techniques that you can use for your applications, like: traversing a scene, create beautiful lighting, load custom-made objects from a modelling program, do cool post-processing techniques, and much more. We also feature a walkthrough series where we actually create a small game based on our obtained OpenGL knowledge, so you will really get a feel of what it's like to actually do graphics programming.
+Here, at the Pooper Times, we have high standards regarding the accuracy and reliability of our news articles. Every article is checked by multiple editors and reviewers to ensure the highest level of quality and accuracy, with the lowest level of bias humanly possible. 
 
-**Where to start**
+Of course, eliminating bias is just one side of the equation. To ensure high quality news articles, we also need to have accurate facts. Therefore, we have over a hundred thousand journalists all around the world right on scene to provide you with the most accurate facts available. To eliminate perception bias, we often send multiple journalists, at least ten, to report on the same event from different angles.
 
-Learn OpenGL is free, and will always be free, for anyone who wants to start with graphics programming. All content is available here at the menu to your left. Simply hit the Introduction button and you're ready to start your journey! 
+**Contacts**
+
+We love to hear from our readers for feedbacks, so if you have anything you would like to say about the Pooper Times, you can contact us through the following options:
+
+**DISCORD:** FHDHGNGN#6050
+**EMAIL:** fyreboyedralt@gmail.com
+**MAIL:** Unit 4, 1776 July Street, Nengopolis
