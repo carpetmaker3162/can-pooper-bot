@@ -59,9 +59,6 @@ def shipValue(a, b):
 def round_to_5(s):
     return round(s/5) * 5
 
-def round_to_10(s):
-    return round(s/10) * 10
-
 def nobl():
     def am(ctx):
         return (ctx.message.author.id not in blList)
@@ -205,6 +202,20 @@ async def reset(ctx):
 
     await msg.edit(f"Resetted\nCurrent time: {datetime.today().strftime('%Y-%m-%d %H:%M:%S')}\nLast reset: {datetime.fromtimestamp(int(lasttime)).strftime('%Y-%m-%d %H:%M:%S')}")
 
+@bot.command()
+@botowner()
+async def lastreset(ctx, *new):
+    with open("report_logs.txt", "r") as file:
+        times = file.read().split("\n")
+        file.close()
+    if not new:
+        await ctx.send(f"Last resetted: <t:{times[-1]}>")
+    else:
+        with open("report_logs.txt", "a") as file:
+            file.write("\n")
+            file.write(str(new[0]))
+        await ctx.send(f"Last reset time manually set to <t:{str(new[0])}>")
+
 @bot.event
 async def on_message_delete(msg):
     global snipelist_
@@ -263,7 +274,7 @@ async def ship(ctx, *people):
     bar = ""
     for i in range(fullc):
         bar += full
-    if str(val)[-1] == "5":
+    if str(round_to_5(val))[-1] == "5":
         bar += half
         emptc -= 1
     for i in range(emptc):
