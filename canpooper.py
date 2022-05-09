@@ -678,8 +678,8 @@ async def on_message(message):
         await _police(message, exempted)
     
     if "ratio" in message.content.lower():
-        await message.add_reaction(thum)
         if message.reference is not None:
+            await message.add_reaction(thum)
             original_msg = await message.channel.fetch_message(message.reference.message_id)
             await original_msg.add_reaction(thum)
     
