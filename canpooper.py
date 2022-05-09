@@ -240,7 +240,7 @@ async def ship(ctx, *people):
             b = people[0]
         except IndexError:
             a, b = random.sample(set([x.display_name for x in ctx.guild.members]), 2)
-            h=False
+            h = False
     if h:
         a = people[0]
     if re.findall("<@(\d{18})>", a):
@@ -248,8 +248,9 @@ async def ship(ctx, *people):
     if re.findall("<@(\d{18})>", b):
         b = bot.get_user(int(re.findall("<@(\d{18})>", b)[0])).display_name
 
-            
     val = shipValue(a, b)
+    if (a.lower() == "shiva" and b.lower() == "lal") or (b.lower() == "shiva" and a.lower() == "lal"):
+        val = 69
     if val in range(0,11):
         msg = f"Awful :face_vomiting:"
     elif val == 69:
@@ -619,10 +620,11 @@ async def send_news(ctx: commands.Context, channel: int):
 
 @bot.event
 async def on_message(message):
+    """
     print(f'---New Message---\nContent: "{message.content}"\nUser: {message.author}\nChannel: ',end='')
     try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
     except: print("possibly a dm\n")
-
+    """
     
     if message.author.bot:
         return
