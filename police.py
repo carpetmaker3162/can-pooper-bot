@@ -10,12 +10,19 @@ def search_same_length(checkword):
 async def police(message, exempted):
     punctuation = (".", "!", "?")
     curse_words = ("fuck","shit","crap","bitch","faggot","fag","dick","cock")
+    
     if message.author.id in exempted:
         return
+    
+    if message.content.higher() == message.content:
+        await message.reply("Why are you talking in all caps? It's completely unnecessary, everyone can hear you just fine. You're not cool by using caps to grab everyone's attention / to cause drama.")
+
     if tuple(message.content)[0].lower() == tuple(message.content)[0] and tuple(message.content)[0] not in punctuation:
         await message.reply("Lol that sentence needs to be capitalized")
+    
     if tuple(message.content)[-1] not in punctuation:
         await message.reply("no punctuation yikes")
+    
     for word in message.content.split():
         input_word = ''.join(list(filter(lambda a: a in string.ascii_lowercase, list(word.lower()))))
         if word.lower() in curse_words:
