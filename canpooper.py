@@ -375,7 +375,7 @@ async def _animation(ctx):
     for i in itertools.cycle(frames):
         if animation:
             await _bot.edit(nick=i)
-            time.sleep(2)
+            await asyncio.sleep(2)
         else:
             break
 
@@ -447,15 +447,15 @@ async def translate(ctx, *args):
 @nobl()
 async def whoasked(ctx):
     msg = await ctx.send('[▖] Looking for who asked...')
-    time.sleep(0.2)
+    await asyncio.sleep(0.2)
     await msg.edit(content='[▘] Looking for who asked...')
-    time.sleep(0.2)
+    await asyncio.sleep(0.2)
     await msg.edit(content='[▝] Looking for who asked...')
-    time.sleep(0.2)
+    await asyncio.sleep(0.2)
     await msg.edit(content='[▗] Looking for who asked...')
-    time.sleep(0.2)
+    await asyncio.sleep(0.2)
     await msg.edit(content='[▖] Looking for who asked...')
-    time.sleep(0.2)
+    await asyncio.sleep(0.2)
     if random.random() > 0.33:
         await msg.edit(content='ERROR: Failed to find who asked')
     else:
