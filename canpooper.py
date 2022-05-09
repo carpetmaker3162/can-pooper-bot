@@ -494,6 +494,37 @@ async def unix(ctx):
 async def ping(ctx):
     await ctx.reply("Ping: `" + str(round(bot.latency * 1000)) + "` ms")
 
+@bot.command(name="death",aliases = ["deathdate","whenwillidie","dead"])
+@nobl()
+async def _death(ctx, *person : discord.Member):
+    if not person:
+        person = ctx.author
+        other = False
+    else:
+        person = person[0]
+        other = True
+    msg = await ctx.reply("Calculating...")
+    current_time = math.floor(time.time())
+    random.seed(person.id / 7)
+    val = random.random()
+    random.seed(None)
+    if val < 0.05:
+        add_years = random.randrange(3600, 63113851)
+    elif 0.05 < val < 0.1:
+        add_years = random.randrange(1892160000, 2522880000)
+    elif 0.1 < val < 0.2:
+        add_years = random.randrange(946080000, 1261440000)
+    else:
+        add_years = random.randrange(1576800000, 2444040000)
+    await asyncio.sleep(0.1)
+    if not other:
+        embed = discord.Embed(title="", description=f"**You** will die <t:{current_time + add_years}:R>")
+    else:
+        embed = discord.Embed(title="", description=f"**{person}** will die <t:{current_time + add_years}:R>")
+    embed.set_footer(text="note that can pooper is just a badly written discord bot so dont take this seriously lol")
+    await msg.edit(embed=embed)
+    
+
 @bot.command()
 @botowner()
 async def say(ctx, channelid, *msg):
