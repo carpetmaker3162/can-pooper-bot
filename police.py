@@ -14,7 +14,7 @@ async def police(message, exempted):
     if message.author.id in exempted:
         return
     
-    if message.content.higher() == message.content:
+    if message.content.upper() == message.content:
         await message.reply("Why are you talking in all caps? It's completely unnecessary, everyone can hear you just fine. You're not cool by using caps to grab everyone's attention / to cause drama.")
 
     if tuple(message.content)[0].lower() == tuple(message.content)[0] and tuple(message.content)[0] not in punctuation:
