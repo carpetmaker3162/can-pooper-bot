@@ -27,7 +27,7 @@ bot = commands.Bot(
     intents = discord.Intents(guilds=True, members=True, bans=True, emojis=True, voice_states=True, messages=True, reactions=True), 
     allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True),
     help_command=None)
-checkreaction, crossreaction, hourglass = '\N{WHITE HEAVY CHECK MARK}', '\N{CROSS MARK}', '\N{HOURGLASS}'
+checkreaction, crossreaction, hourglass, thum = '\N{WHITE HEAVY CHECK MARK}', '\N{CROSS MARK}', '\N{HOURGLASS}', "\N{THUMBS UP SIGN}"
 blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], [], [], [], [], [], []
 police, animation = False, False
 lwords = tuple(open("words.txt", "r").read().split("\n"))
@@ -505,13 +505,15 @@ async def _death(ctx, *person : discord.Member):
         other = True
     msg = await ctx.reply("Calculating...")
     current_time = math.floor(time.time())
-    random.seed(person.id / 7)
+    random.seed(person.id / 18) # 13
     val = random.random()
     random.seed(None)
-    if val < 0.05:
-        add_years = random.randrange(3600, 63113851)
+    if val < 0.01:
+        add_years = random.randrange(1200, 604800)
+    elif 0.01 < val < 0.05:
+        add_years = random.randrange(31556926, 157680000)
     elif 0.05 < val < 0.1:
-        add_years = random.randrange(1892160000, 2522880000)
+        add_years = random.randrange(3784320000, 5045760000)
     elif 0.1 < val < 0.2:
         add_years = random.randrange(946080000, 1261440000)
     else:
@@ -674,6 +676,19 @@ async def on_message(message):
     global police
     if police or message.author.id in policing:
         await _police(message, exempted)
+    
+    if "ratio" in message.content.lower():
+        await message.add_reaction(thum)
+        if message.reference is not None:
+            original_msg = await message.channel.fetch_message(message.reference.message_id)
+            await original_msg.add_reaction(thum)
+    
+    if random.random() < 0.02:
+        responses = ["ratio", "take this ratio", "ratio bozo"]
+        ratio = await message.reply(random.choice(responses))
+        await ratio.add_reaction(thum)
+        original_msg = await message.channel.fetch_message(ratio.reference.message_id)
+        await original_msg.add_reaction(thum)
 
 
 if __name__ == "__main__":
