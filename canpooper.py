@@ -553,8 +553,8 @@ async def on_ready():
     
     t = math.floor(time.time()) # record time at which bot started running
     
-    channel = bot.get_channel(967137143208161301) # automatically join vc
-    await channel.connect()
+    #channel = bot.get_channel(967137143208161301) # automatically join vc
+    #await channel.connect()
 
     _guild = bot.get_guild(966819556016418856) # start tracking g9ds channels
     for idx in _guild.text_channels:
