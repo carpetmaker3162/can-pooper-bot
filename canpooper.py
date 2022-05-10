@@ -507,7 +507,6 @@ async def _death(ctx, *person : discord.Member):
     current_time = math.floor(time.time())
     random.seed(person.id / 18) # 13
     val = random.random()
-    random.seed(None)
     if val < 0.01:
         add_years = random.randrange(1200, 604800)
     elif 0.01 < val < 0.05:
@@ -518,6 +517,7 @@ async def _death(ctx, *person : discord.Member):
         add_years = random.randrange(946080000, 1261440000)
     else:
         add_years = random.randrange(1576800000, 2444040000)
+    random.seed(None)
     await asyncio.sleep(0.1)
     if not other:
         embed = discord.Embed(title="", description=f"**You** will die <t:{current_time + add_years}:R>")
