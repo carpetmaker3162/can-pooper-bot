@@ -7,23 +7,25 @@ import sys
 import time
 import math
 import random
+from string import ascii_uppercase, ascii_lowercase, digits
 
 import re
-import itertools
-import contextlib
+from itertools import combinations, cycle
+from contextlib import redirect_stdout
 from datetime import datetime
 from googletrans import Translator
-import textwrap
+from textwrap import indent
 from traceback import format_exception
 from emoji import demojize
 import asyncio
+
 
 import _brainfuck
 from police import police as _police
 
 primary_prefix = "!"
 bot = commands.Bot(
-    command_prefix = [primary_prefix, "lol ", "$", "%", "^", "&", "*", "-", "--", ", ", "/", ";;", ";", "?", "—"],
+    command_prefix = [primary_prefix, "lol "],
     intents = discord.Intents(guilds=True, members=True, bans=True, emojis=True, voice_states=True, messages=True, reactions=True), 
     allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True),
     help_command=None)
@@ -50,11 +52,16 @@ def merge(a, b):
     return a[:a_slug_len] + b[b_slug_len:]
 
 def shipValue(a, b): 
-    return abs(math.ceil(100 * math.sin(product([ord(x) for x in a]) * product([ord(x) for x in b]))))
+    """return abs(math.ceil(100 * math.sin(product([ord(x) for x in a]) * product([ord(x) for x in b]))))"""
+    
     """random.seed(product([ord(x) for x in a]) * product([ord(x) for x in b]))
     x = math.ceil(random.random()*100)
     random.seed(None)
     return x"""
+
+    proda = product([ord(x) for x in a])
+    prodb = product([ord(x) for x in b])
+    return abs(math.ceil(100 * math.sin(proda * prodb)))
 
 def round_to_5(s):
     return round(s/5) * 5
@@ -64,15 +71,23 @@ def nobl():
         return (ctx.message.author.id not in blList)
     return commands.check(am)
 
-def botowner():
+def owner():
     def am(ctx):
         return (ctx.message.author.id == 672892838995820553)
+    return commands.check(am)
+
+def dev():
+    poopers = [650439182204010496, 672892838995820553]
+    def am(ctx):
+        return ctx.author.id in poopers
     return commands.check(am)
 
 def staff():
     staffs = [672892838995820553, # me
     650439182204010496, # yue
-    690265771955585029] # jay
+    690265771955585029, # jay
+    816692546272100442, # deshpande
+    ]
     def am(ctx):
         return (ctx.message.author.id in staffs)
     return commands.check(am)
@@ -124,6 +139,7 @@ async def penis(ctx, *user):
     if user.id == 963533621812158474:
         embed = discord.Embed(title="pp size calculator", description=f"{username}'s penis size\nFATAL ERROR: No penis found. It could be too short (the bot can only detect min. 1cm penises)")
         await ctx.send(embed=embed)
+        random.seed(None)
         return
     length = random.randrange(0, 21)
     random.seed(None)
@@ -181,7 +197,7 @@ async def report(ctx):
     await msg.edit(embed=embed)
 
 @bot.command()
-@botowner()
+@owner()
 async def reset(ctx):
     msg = await ctx.send("Resetting message data...")
     
@@ -203,7 +219,7 @@ async def reset(ctx):
     await msg.edit(f"Resetted\nCurrent time: {datetime.today().strftime('%Y-%m-%d %H:%M:%S')}\nLast reset: {datetime.fromtimestamp(int(lasttime)).strftime('%Y-%m-%d %H:%M:%S')}")
 
 @bot.command()
-@botowner()
+@owner()
 async def lastreset(ctx, *new):
     with open("report_logs.txt", "r") as file:
         times = file.read().split("\n")
@@ -366,13 +382,13 @@ async def exempt(ctx, *user: discord.Member):
         await ctx.send(f"{u} is now exempted from police")
 
 @bot.command(name="animation")
-@botowner()
+@owner()
 async def _animation(ctx):
     global animation
     animation = (False if animation else True)
     frames = ["8D", "8=D", "8==D", "8===D", "8==D", "8=D"]
     _bot = ctx.guild.get_member(bot.user.id)
-    for i in itertools.cycle(frames):
+    for i in cycle(frames):
         if animation:
             await _bot.edit(nick=i)
             await asyncio.sleep(2)
@@ -380,7 +396,7 @@ async def _animation(ctx):
             break
 
 @bot.command()
-@botowner()
+@owner()
 async def nickname(ctx, *args):
     await ctx.guild.get_member(bot.user.id).edit(nick=' '.join(args))
     await ctx.message.add_reaction(checkreaction)
@@ -479,7 +495,7 @@ async def help(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-@botowner()
+@dev()
 async def restart(ctx):
     await ctx.message.add_reaction(hourglass)
     os.execl(sys.executable, sys.executable, *sys.argv)
@@ -526,9 +542,14 @@ async def _death(ctx, *person : discord.Member):
     embed.set_footer(text="note that can pooper is just a badly written discord bot so dont take this seriously lol")
     await msg.edit(embed=embed)
     
+@bot.command()
+@nobl()
+async def test(ctx):
+    await asyncio.sleep(3)
+    await ctx.reply("3 seconds have elapsed")
 
 @bot.command()
-@botowner()
+@owner()
 async def say(ctx, channelid, *msg):
     try:
         channel_ = bot.get_channel(int(channelid))
@@ -561,7 +582,7 @@ async def on_ready():
         tracking_channels.append(idx.id)
 
 @bot.command(name="eval", aliases=["exec", "lol"])
-@botowner()
+@owner()
 async def lol(ctx, *, code):
     _globals = {
         "discord": discord,
@@ -569,20 +590,21 @@ async def lol(ctx, *, code):
         "bot": bot,
         "ctx": ctx,
         "blList": blList,
-        "botowner": botowner,
+        "owner": owner,
         "math": math,
         "random": random,
         "time": time,
         "neng": 'cool',
         "exempted": exempted,
         "guild": ctx.guild,
+        "dox": dox_command,
     }
 
     buffer = io.StringIO()
 
     try:
-        with contextlib.redirect_stdout(buffer):
-            exec(f"async def func():\n{textwrap.indent(code, '    ')}", _globals)
+        with redirect_stdout(buffer):
+            exec(f"async def func():\n{indent(code, '    ')}", _globals)
             func = await _globals["func"]()
             result = f"{buffer.getvalue()}\n-- {func}\n"
             await ctx.message.add_reaction(checkreaction)
@@ -597,7 +619,7 @@ async def lol(ctx, *, code):
         await ctx.send(embed=embed)
 
 @bot.command()
-@botowner()
+@owner()
 async def e(ctx, *expression):
     _globals = {
         "discord": discord,
@@ -605,7 +627,7 @@ async def e(ctx, *expression):
         "bot": bot,
         "ctx": ctx,
         "blList": blList,
-        "botowner": botowner,
+        "owner": owner,
         "math": math,
         "random": random,
         "time": time,
@@ -659,6 +681,18 @@ async def send_news(ctx: commands.Context, channel: int):
         await channel.send(paragraph + "\n​")
         await asyncio.sleep(1)
 
+@bot.command(name="school", aliases=["schoolend","whendoesschoolend","endofschool"])
+async def school(ctx):
+    current_time = math.floor(time.time())
+    school_end_unix = 1656442200
+    seconds = school_end_unix - current_time
+    minutes = math.floor(seconds / 60)
+    hours = math.floor(minutes / 60)
+    days = math.ceil(hours / 24)
+    embed = discord.Embed(title="Time until end of school", description=f"Days: {days}\nHours: {hours}\nMinutes: {minutes}\nSeconds: {seconds}\n\nSchool ends <t:{school_end_unix}>")
+    embed.set_thumbnail(url="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/twitter/141/alarm-clock_23f0.png")
+    await ctx.send(embed=embed)
+
 @bot.event
 async def on_message(message):
     """
@@ -698,6 +732,202 @@ async def on_message(message):
         original_msg = await message.channel.fetch_message(ratio.reference.message_id)
         await original_msg.add_reaction(thum)
 
+@bot.command(name = "dox", aliases = ["doxx"])
+async def dox_command(ctx, user: discord.User):
+    random.seed(user.id / 13)
+    # Okay, let's say that we wanted to debug this function.
+    # You know how to insert a breakpoint?
+    # Next, you know how to run the program through the debugger?
+    # yeah just the arrow itht the teehteehtee with the bug thing
+    # Okay, give it a go.
+    # it is le runningé mon ami bonjour j'aime les baguettes
+    # Wait, it says unverified breakpoint. File is modified. Please restart debug session.
+    FIRST_NAMES = [
+        "Jason",
+        "Kyle",
+        "Joseph",
+        "Neng",
+        "Da",
+        "Jay",
+        "Shiva",
+        "Osama",
+        "Saddam",
+        "Hussein",
+        "Adolph",
+        "Joey",
+        "Nicholas",
+        "Alex",
+        "Dmitri",
+        "Vladimir",
+        "Zedong",
+        "Jihad",
+        "Bob",
+        "James",
+        "Carl",
+        "Raku",
+        "Canpooper",
+        "Shuva",
+        "Stalin",
+        "Kim Jong",
+        "Vladimir",
+        "Volodymyr",
+        "Bin Laden",
+        "Obama",
+        "Joe",
+        "Kimberly",
+        "Thomas",
+        "Johannes",
+        "Galileo",
+        "Luke",
+        "Yan",
+        "Washington",
+        "George",
+        "Ryan",
+        "Don",
+        "Donald",
+        "Riley",
+        "Google",
+        "Mia",
+        "Tony",
+        "Anthony",
+        "Aly",
+        "Alyson",
+        "Steven",
+        "Stephen",
+        "Benito",
+        "Tim",
+        "Jimmy",
+        "Nguyen",
+        "Abraham",
+        "Jesus",
+        "Mohammed",
+        "Muhammad",
+        "Jack",
+        "Jackson",
+        "COVID"
+    ]
+    
+    LAST_NAMES = FIRST_NAMES + [
+        "Hitler",
+        "Mao",
+        "Kim",
+        "Hawking",
+        "Mardikar",
+        "Ghizali",
+        "Paolini",
+        "Massaquoi",
+        "Li",
+        "Zhao",
+        "Ping",
+        "Timers",
+        "Wood",
+        "Lester",
+        "Pablo",
+        "Putin",
+        "Lenin",
+        "Stalin",
+        "Mussolini",
+        "Mardikar",
+        "Sedjiu",
+        "Mackenzie",
+        "II of Poopland",
+        "I of Poopland",
+        "III of Poopland",
+        "IV of Poopland",
+        "V of Poopland",
+        "+ ratio",
+        ":joy_cat: :joy_cat: :joy_cat:",
+        random.choice(lwords).title(),
+        f"#{random.randrange(0,2000)}",
+    ]
+    
+    STREET_NAME_ENDINGS = [
+        "dale",
+        "glen",
+        "pass",
+        "brooke",
+        "pooper",
+        "raku",
+        "",
+        "",
+        "",
+        random.choice(lwords),
+        ''.join([random.choice(ascii_lowercase + ascii_uppercase + digits) for i in range(random.randrange(1, 20))])
+    ]
+
+    STREET_TYPES = [
+        "Avenue",
+        "Street",
+        "Road",
+        "Drive",
+        "Pass",
+        "Plaza",
+        "Court",
+        "Circle",
+        "Boulevard",
+        "Freeway",
+        "Highway",
+        "Way",
+    ]
+
+    for i in range(25):
+        LAST_NAMES.append(random.choice(lwords).title())
+
+    msg: discord.Message = await ctx.send("Waiting...")
+    await asyncio.sleep(5)
+
+    # insert stuff here
+
+    embed = discord.Embed(
+        title = "Private Information Extractor v1.0.4",
+        description = f"{user.mention}'s info:",
+    )
+
+    embed.add_field(
+        name = "FULL NAME",
+        value = random.choice(FIRST_NAMES) + " " + random.choice(LAST_NAMES),
+        inline = False
+    )
+
+    embed.add_field(
+        name = "AGE",
+        value = f"{random.randrange(2,150)} years",
+        inline = False
+    )
+
+    embed.add_field(
+        name = "GENDER",
+        value = random.choice(("Male", "Male", "Male", "Female", "Female", "Female", "Non-binary")),
+        inline = False
+    )
+    
+    embed.add_field(
+        name = "ADDRESS",
+        value = str(random.randrange(1, 2500)) + " " + random.choice(lwords).title() + random.choice(STREET_NAME_ENDINGS) + " " + random.choice(STREET_TYPES),
+        inline = False
+    )
+
+    embed.add_field(
+        name = "IP ADDRESS",
+        value = str(random.randrange(0, 256)) + "." + str(random.randrange(0, 256)) + "." + str(random.randrange(0, 256)) + "." + str(random.randrange(0, 256)),
+        inline = False
+    )
+
+    t1 = ''.join([random.choice(ascii_uppercase + ascii_uppercase + ascii_uppercase + ascii_lowercase + digits) for i in range(24)])
+    t2 = ''.join([random.choice(ascii_uppercase + ascii_uppercase + digits) for i in range(6)])
+    t3 = ''.join([random.choice(ascii_uppercase + ascii_lowercase + digits) for i in range(11)])
+    t4 = ''.join([random.choice(ascii_uppercase + digits) for i in range(5)])
+    
+    embed.add_field(
+        name = "DISCORD AUTH TOKEN",
+        value = t1 + "." + t2 + "." + t3 + "-" + t4,
+        inline = False
+    )
+
+    random.seed(None)
+    embed.set_footer(text = "for legal reasons this is a joke (but is it really?)")
+
+    await msg.edit(content="", embed=embed)
 
 if __name__ == "__main__":
     token = open("token.txt","r").read()
