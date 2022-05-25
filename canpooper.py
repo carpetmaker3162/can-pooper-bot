@@ -19,9 +19,9 @@ from traceback import format_exception
 from emoji import demojize
 import asyncio
 
-
 import _brainfuck
 from police import police as _police
+from conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -39,6 +39,7 @@ POOPER_TIMES_PUBLISHERS = [
     672892838995820553, # Neng
     650439182204010496 # Yue
 ]
+
 
 def product(s):
     res = 1
@@ -73,7 +74,7 @@ def nobl():
 
 def owner():
     def am(ctx):
-        return (ctx.message.author.id == 672892838995820553)
+        return ctx.message.author.id == 672892838995820553
     return commands.check(am)
 
 def dev():
@@ -442,19 +443,50 @@ async def translate(ctx, *args):
     else:
         t1 = time.time_ns()
         loadingsent = await ctx.send('Loading...')
-        translation1 = translator.translate(translateorigin, dest='hy')
-        translation2 = translator.translate(translation1.text, dest='ht')
-        translation3 = translator.translate(translation2.text, dest='ka')
-        translation4 = translator.translate(translation3.text, dest='af')
-        translation5 = translator.translate(translation4.text, dest='so')
-        translation6 = translator.translate(translation5.text, dest='en')
+        translation1 = translator.translate(translateorigin, dest='gu') # Gujarati
+        translation2 = translator.translate(translation1.text, dest='so') # Somali
+        translation3 = translator.translate(translation2.text, dest='ja') # Japanese
+        translation4 = translator.translate(translation3.text, dest='xh') # Xhosa
+        translation5 = translator.translate(translation4.text, dest='ko') # Korean
+        translation6 = translator.translate(translation5.text, dest='mi') # Maori
+        translation7 = translator.translate(translation6.text, dest='en') # English
         t2 = time.time_ns()
         t = (t2 - t1) / 1000
         if translateorigin == translation1.text and translation1.text == translation2.text and translation2.text == translation3.text and translation3.text == translation4.text and translation4.text == translation5.text and translation5.text == translation6.text:# and translation6.text == translation7.text and translation7.text == translation8.text
             await ctx.send('API limit reached. Maybe try again later?')
         embed = discord.Embed(title='Bad translation machine')
         embed.add_field(name='Input', value=f'```{translateorigin}```')
-        embed.add_field(name='Output', value=f'```{translation6.text}```')
+        embed.add_field(name='Output', value=f'```{translation7.text}```')
+        embed.set_footer(text=f'done in {math.floor(t/1000)}ms')
+        await loadingsent.edit(content='Done!',embed=embed)
+
+@bot.command()
+@nobl()
+async def test(ctx, *args):
+    translator = Translator()
+    translateorigin = ''
+    if not args:
+        embed=discord.Embed(title="Bad translation machine")
+        embed.add_field(name="Input", value="``` ```")
+        embed.add_field(name="Output", value="```idiot you need to provide something for me to translate```")
+        embed.set_footer(text=f'done in 69ms')
+        await ctx.send(embed=embed)
+        return
+    for i in args:
+        translateorigin = translateorigin + str(i) + ' '
+    if len(translateorigin) > 1024:
+        await ctx.send(f'Too many characters! ({len(translateorigin)} characters inputted)\nMust be 1024 or fewer in length.')
+    else:
+        t1 = time.time_ns()
+        loadingsent = await ctx.send('Loading...')
+        translation1 = translator.translate(translateorigin, dest='en') # Gujarati
+        t2 = time.time_ns()
+        t = (t2 - t1) / 1000
+        #if translateorigin == translation1.text and translation1.text == translation2.text and translation2.text == translation3.text and translation3.text == translation4.text and translation4.text == translation5.text and translation5.text == translation6.text:# and translation6.text == translation7.text and translation7.text == translation8.text
+        #    await ctx.send('API limit reached. Maybe try again later?')
+        embed = discord.Embed(title='Good translation machine')
+        embed.add_field(name='Input', value=f'```{translateorigin}```')
+        embed.add_field(name='Output', value=f'```{translation1.text}```')
         embed.set_footer(text=f'done in {math.floor(t/1000)}ms')
         await loadingsent.edit(content='Done!',embed=embed)
 
@@ -541,12 +573,6 @@ async def _death(ctx, *person : discord.Member):
         embed = discord.Embed(title="", description=f"**{person}** will die <t:{current_time + add_years}:R>")
     embed.set_footer(text="note that can pooper is just a badly written discord bot so dont take this seriously lol")
     await msg.edit(embed=embed)
-    
-@bot.command()
-@nobl()
-async def test(ctx):
-    await asyncio.sleep(3)
-    await ctx.reply("3 seconds have elapsed")
 
 @bot.command()
 @owner()
@@ -928,6 +954,24 @@ async def dox_command(ctx, user: discord.User):
     embed.set_footer(text = "for legal reasons this is a joke (but is it really?)")
 
     await msg.edit(content="", embed=embed)
+
+@bot.command()
+@nobl()
+async def convert(ctx, value: float, currency = None):
+    if not currency:
+        embed = discord.Embed(title = "JAYD-USD Converter", description = f"${value:,.2f} USD ≈ 😹{to_jayd(value):,.2f} Jayd Dollar\n😹{value:,.2f} Jayd Dollar ≈ ${to_usd(value):,.2f} USD")
+        embed.set_footer(text = f"Conversion rate: 1 Jayd Dollar = ${USD_TO_JAYD_CONVERSION_RATE:,.3f} USD")
+        await ctx.reply(embed = embed)
+        return
+    elif currency.lower() in ("jayd", "jay", "j", "jayd dollar", "😹", ":joy_cat:"):
+        embed = discord.Embed(title = "Jayd Dollar to USD", description = f"😹{value:,.2f} Jayd Dollar ≈ ${to_usd(value):,.2f} USD")
+    elif currency.lower() in ("usd", "us", "us dollar", "$", "dollar"):
+        embed = discord.Embed(title = "USD to Jayd Dollar", description = f"${value:,.2f} USD ≈ 😹{to_jayd(value):,.2f} Jayd Dollar")
+    else:
+        await ctx.reply(f"idiot, re-do this command but this time do it like this:\n```{primary_prefix}convert 250 Jayd```\n```{primary_prefix}convert 1500 USD```")
+        return
+    embed.set_footer(text = f"Conversion rate: 1 Jayd Dollar = ${USD_TO_JAYD_CONVERSION_RATE:,.3f} USD")
+    await ctx.reply(embed = embed)
 
 if __name__ == "__main__":
     token = open("token.txt","r").read()
