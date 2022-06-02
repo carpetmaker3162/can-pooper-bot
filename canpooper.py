@@ -5,23 +5,27 @@ import io
 import os
 import sys
 import time
+from datetime import datetime
+from dateutil import relativedelta
 import math
 import random
-from string import ascii_uppercase, ascii_lowercase, digits
+from string import ascii_letters, ascii_uppercase, ascii_lowercase, digits
 
 import re
 from itertools import combinations, cycle
 from contextlib import redirect_stdout
-from datetime import datetime
 from googletrans import Translator
 from textwrap import indent
 from traceback import format_exception
 from emoji import demojize
 import asyncio
 
-import _brainfuck
-from police import police as _police
-from conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
+from src._brainfuck import BrainfuckInterpreter
+from src.police import police as _police
+from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
+from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
+    HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, FIRST_NAMES, \
+    LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -29,17 +33,9 @@ bot = commands.Bot(
     intents = discord.Intents(guilds=True, members=True, bans=True, emojis=True, voice_states=True, messages=True, reactions=True), 
     allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True),
     help_command=None)
-checkreaction, crossreaction, hourglass, thum = '\N{WHITE HEAVY CHECK MARK}', '\N{CROSS MARK}', '\N{HOURGLASS}', "\N{THUMBS UP SIGN}"
 blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], [], [], [], [], [], []
 police, animation = False, False
-lwords = tuple(open("words.txt", "r").read().split("\n"))
 t = 0
-
-POOPER_TIMES_PUBLISHERS = [
-    672892838995820553, # Neng
-    650439182204010496 # Yue
-]
-
 
 def product(s):
     res = 1
@@ -152,9 +148,9 @@ async def penis(ctx, *user):
 async def dm(ctx, user: discord.Member, *message):
     try:
         await user.send(' '.join(message))
-        await ctx.message.add_reaction(checkreaction)
+        await ctx.message.add_reaction(CHECK_MARK_EMOJI)
     except:
-        await ctx.message.add_reaction(crossreaction)
+        await ctx.message.add_reaction(CROSS_MARK_EMOJI)
 
 @bot.command()
 @staff()
@@ -198,7 +194,7 @@ async def report(ctx):
     await msg.edit(embed=embed)
 
 @bot.command()
-@owner()
+@dev()
 async def reset(ctx):
     msg = await ctx.send("Resetting message data...")
     
@@ -220,7 +216,7 @@ async def reset(ctx):
     await msg.edit(f"Resetted\nCurrent time: {datetime.today().strftime('%Y-%m-%d %H:%M:%S')}\nLast reset: {datetime.fromtimestamp(int(lasttime)).strftime('%Y-%m-%d %H:%M:%S')}")
 
 @bot.command()
-@owner()
+@dev()
 async def lastreset(ctx, *new):
     with open("report_logs.txt", "r") as file:
         times = file.read().split("\n")
@@ -361,7 +357,7 @@ async def _re(ctx, *s):
 async def brainfuck(ctx, *code):
     code = ''.join(code)
     t = time.time()
-    output = _brainfuck.BrainfuckInterpreter(code, verbose=False).output
+    output = BrainfuckInterpreter(code, verbose=False).output
     embed = discord.Embed(title="")
     embed.add_field(name="Input", value=f"```{code}```", inline=False)
     embed.add_field(name="Output", value=f"```{output}```", inline=False)
@@ -383,7 +379,7 @@ async def exempt(ctx, *user: discord.Member):
         await ctx.send(f"{u} is now exempted from police")
 
 @bot.command(name="animation")
-@owner()
+@dev()
 async def _animation(ctx):
     global animation
     animation = (False if animation else True)
@@ -397,10 +393,10 @@ async def _animation(ctx):
             break
 
 @bot.command()
-@owner()
+@dev()
 async def nickname(ctx, *args):
     await ctx.guild.get_member(bot.user.id).edit(nick=' '.join(args))
-    await ctx.message.add_reaction(checkreaction)
+    await ctx.message.add_reaction(CHECK_MARK_EMOJI)
 
 @bot.command()
 @staff()
@@ -523,13 +519,13 @@ async def help(ctx):
     embed.add_field(name=f"{primary_prefix}editsnipe", value="Shows the most recent edited message.", inline=False)
     embed.add_field(name=f"{primary_prefix}translate", value="Translates whatever text you input into bad english.\n`.translate <insert text here>`", inline=False)
     embed.add_field(name=f"{primary_prefix}about", value="Shows some information about the bot :man_shrugging:", inline=False)
-    embed.set_footer(text="fhdfnsdhfndhgbsdf")
+    embed.set_footer(text="nghfnhghnghfnghf")
     await ctx.send(embed=embed)
 
 @bot.command()
 @dev()
 async def restart(ctx):
-    await ctx.message.add_reaction(hourglass)
+    await ctx.message.add_reaction(HOURGLASS_EMOJI)
     os.execl(sys.executable, sys.executable, *sys.argv)
 
 @bot.command()
@@ -575,19 +571,23 @@ async def _death(ctx, *person : discord.Member):
     await msg.edit(embed=embed)
 
 @bot.command()
-@owner()
+@dev()
 async def say(ctx, channelid, *msg):
     try:
         channel_ = bot.get_channel(int(channelid))
         await channel_.send(' '.join(msg))
         print(f'Message \'{msg}\' sent. ')
-        await ctx.message.add_reaction(checkreaction)
+        await ctx.message.add_reaction(CHECK_MARK_EMOJI)
     except:
-        await ctx.message.add_reaction(crossreaction)
+        await ctx.message.add_reaction(CROSS_MARK_EMOJI)
 
 @bot.command()
 @nobl()
 async def echo(ctx, *msg):
+    try: 
+        await ctx.message.delete()
+    except discord.errors.Forbidden:
+        pass
     await ctx.send(' '.join(msg))
 
 @bot.event
@@ -595,7 +595,7 @@ async def on_ready():
     global t, police
     police = False
     
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="FHDbot bend over"))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you"))
     print('[' + str(time.strftime("%H:%M:%S", time.localtime())) + "] can pooper is now running")
     
     t = math.floor(time.time()) # record time at which bot started running
@@ -624,8 +624,9 @@ async def lol(ctx, *, code):
         "exempted": exempted,
         "guild": ctx.guild,
         "dox": dox_command,
+        "ghostping": _ghost_ping,
     }
-
+    
     buffer = io.StringIO()
 
     try:
@@ -633,7 +634,7 @@ async def lol(ctx, *, code):
             exec(f"async def func():\n{indent(code, '    ')}", _globals)
             func = await _globals["func"]()
             result = f"{buffer.getvalue()}\n-- {func}\n"
-            await ctx.message.add_reaction(checkreaction)
+            await ctx.message.add_reaction(CHECK_MARK_EMOJI)
     except Exception as e:
         tbegin = time.time()
         result = "".join(format_exception(e, e, e.__traceback__))
@@ -747,157 +748,20 @@ async def on_message(message):
     
     if "ratio" in message.content.lower():
         if message.reference is not None:
-            await message.add_reaction(thum)
+            await message.add_reaction(THUMBS_UP_EMOJI)
             original_msg = await message.channel.fetch_message(message.reference.message_id)
-            await original_msg.add_reaction(thum)
+            await original_msg.add_reaction(THUMBS_UP_EMOJI)
     
     if random.random() < 0.02:
         responses = ["ratio", "take this ratio", "ratio bozo"]
         ratio = await message.reply(random.choice(responses))
-        await ratio.add_reaction(thum)
+        await ratio.add_reaction(THUMBS_UP_EMOJI)
         original_msg = await message.channel.fetch_message(ratio.reference.message_id)
-        await original_msg.add_reaction(thum)
+        await original_msg.add_reaction(THUMBS_UP_EMOJI)
 
 @bot.command(name = "dox", aliases = ["doxx"])
 async def dox_command(ctx, user: discord.User):
     random.seed(user.id / 13)
-    # Okay, let's say that we wanted to debug this function.
-    # You know how to insert a breakpoint?
-    # Next, you know how to run the program through the debugger?
-    # yeah just the arrow itht the teehteehtee with the bug thing
-    # Okay, give it a go.
-    # it is le runningé mon ami bonjour j'aime les baguettes
-    # Wait, it says unverified breakpoint. File is modified. Please restart debug session.
-    FIRST_NAMES = [
-        "Jason",
-        "Kyle",
-        "Joseph",
-        "Neng",
-        "Da",
-        "Jay",
-        "Shiva",
-        "Osama",
-        "Saddam",
-        "Hussein",
-        "Adolph",
-        "Joey",
-        "Nicholas",
-        "Alex",
-        "Dmitri",
-        "Vladimir",
-        "Zedong",
-        "Jihad",
-        "Bob",
-        "James",
-        "Carl",
-        "Raku",
-        "Canpooper",
-        "Shuva",
-        "Stalin",
-        "Kim Jong",
-        "Vladimir",
-        "Volodymyr",
-        "Bin Laden",
-        "Obama",
-        "Joe",
-        "Kimberly",
-        "Thomas",
-        "Johannes",
-        "Galileo",
-        "Luke",
-        "Yan",
-        "Washington",
-        "George",
-        "Ryan",
-        "Don",
-        "Donald",
-        "Riley",
-        "Google",
-        "Mia",
-        "Tony",
-        "Anthony",
-        "Aly",
-        "Alyson",
-        "Steven",
-        "Stephen",
-        "Benito",
-        "Tim",
-        "Jimmy",
-        "Nguyen",
-        "Abraham",
-        "Jesus",
-        "Mohammed",
-        "Muhammad",
-        "Jack",
-        "Jackson",
-        "COVID"
-    ]
-    
-    LAST_NAMES = FIRST_NAMES + [
-        "Hitler",
-        "Mao",
-        "Kim",
-        "Hawking",
-        "Mardikar",
-        "Ghizali",
-        "Paolini",
-        "Massaquoi",
-        "Li",
-        "Zhao",
-        "Ping",
-        "Timers",
-        "Wood",
-        "Lester",
-        "Pablo",
-        "Putin",
-        "Lenin",
-        "Stalin",
-        "Mussolini",
-        "Mardikar",
-        "Sedjiu",
-        "Mackenzie",
-        "II of Poopland",
-        "I of Poopland",
-        "III of Poopland",
-        "IV of Poopland",
-        "V of Poopland",
-        "+ ratio",
-        ":joy_cat: :joy_cat: :joy_cat:",
-        random.choice(lwords).title(),
-        f"#{random.randrange(0,2000)}",
-    ]
-    
-    STREET_NAME_ENDINGS = [
-        "dale",
-        "glen",
-        "pass",
-        "brooke",
-        "pooper",
-        "raku",
-        "",
-        "",
-        "",
-        random.choice(lwords),
-        ''.join([random.choice(ascii_lowercase + ascii_uppercase + digits) for i in range(random.randrange(1, 20))])
-    ]
-
-    STREET_TYPES = [
-        "Avenue",
-        "Street",
-        "Road",
-        "Drive",
-        "Pass",
-        "Plaza",
-        "Court",
-        "Circle",
-        "Boulevard",
-        "Freeway",
-        "Highway",
-        "Way",
-    ]
-
-    for i in range(25):
-        LAST_NAMES.append(random.choice(lwords).title())
 
     msg: discord.Message = await ctx.send("Waiting...")
     await asyncio.sleep(5)
@@ -929,7 +793,7 @@ async def dox_command(ctx, user: discord.User):
     
     embed.add_field(
         name = "ADDRESS",
-        value = str(random.randrange(1, 2500)) + " " + random.choice(lwords).title() + random.choice(STREET_NAME_ENDINGS) + " " + random.choice(STREET_TYPES),
+        value = str(random.randrange(1, 2500)) + " " + random.choice(LWORDS).title() + random.choice(STREET_NAME_ENDINGS) + " " + random.choice(STREET_TYPES),
         inline = False
     )
 
@@ -972,6 +836,32 @@ async def convert(ctx, value: float, currency = None):
         return
     embed.set_footer(text = f"Conversion rate: 1 Jayd Dollar = ${USD_TO_JAYD_CONVERSION_RATE:,.3f} USD")
     await ctx.reply(embed = embed)
+
+@bot.command()
+@nobl()
+async def nitro(ctx, user: discord.User = None):
+    code = ''.join([random.choice(ascii_lowercase + ascii_uppercase + digits) for i in range(24)])
+    if not user:
+        user = ctx.author
+        await ctx.reply("Check your DMs for free nitro!")
+        await user.send(f"https://discord.gift/{code}")
+        await asyncio.sleep(1)
+        await user.send("Nitro sent to you by: yourself\n||Note: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link||")
+    else:
+        await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+        await user.send(f"https://discord.gift/{code}")
+        await asyncio.sleep(1)
+        await user.send(f"Nitro sent to you by: {ctx.author}\n||Note: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link||")
+
+@bot.command(name = "ghostping", aliases = ["ghost_ping"])
+@nobl()
+async def _ghost_ping(ctx, user: discord.User):
+    try:
+        await ctx.message.delete()
+    except (discord.errors.Forbidden, discord.errors.NotFound):
+        pass
+    msg = await ctx.send(user.mention)
+    await msg.delete()
 
 if __name__ == "__main__":
     token = open("token.txt","r").read()
