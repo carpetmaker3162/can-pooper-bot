@@ -84,9 +84,3 @@ class BrainfuckInterpreter:
                 loops[left] = right
                 loops[right] = left
         return loops
-
-if __name__ == "__main__":
-    print(BrainfuckInterpreter("""
-    +[----->+++<]>+.---.+++++++..+++.[--->+<]>-----.[->+++<]>++.+++++++++++++..--.--------.+++++++++++++.
-    """, 
-    verbose=False).output)

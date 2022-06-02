@@ -1,7 +1,7 @@
 from string import ascii_lowercase, ascii_uppercase, digits
 import random
 
-LWORDS = tuple(open("words.txt", "r").read().split("\n"))
+LWORDS = tuple(open("src/words.txt", "r").read().split("\n"))
 CHECK_MARK_EMOJI = "\N{WHITE HEAVY CHECK MARK}"
 CROSS_MARK_EMOJI = "\N{CROSS MARK}"
 HOURGLASS_EMOJI = "\N{HOURGLASS}"

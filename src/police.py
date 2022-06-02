@@ -1,9 +1,8 @@
 import string
-
-lwords = tuple(open("words.txt", "r").read().split("\n"))
+from src.consts import LWORDS
 
 def search_same_length(checkword):
-    words = [w for w in lwords if sum(a != b for a, b in zip(checkword, w)) == 1]
+    words = [w for w in LWORDS if sum(a != b for a, b in zip(checkword, w)) == 1]
     words = list(filter(lambda a: len(a) == len(checkword), words))
     return words
 
@@ -28,7 +27,7 @@ async def police(message, exempted):
         if word.lower() in curse_words:
             await message.reply(f"What? Why did you need to swear? Surely you can get your point across without using words like '{word}'")
         
-        if input_word in lwords:
+        if input_word in LWORDS:
             continue
 
         words = search_same_length(input_word)

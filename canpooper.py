@@ -20,7 +20,7 @@ from traceback import format_exception
 from emoji import demojize
 import asyncio
 
-from src._brainfuck import BrainfuckInterpreter
+from src.brainfuck import BrainfuckInterpreter
 from src.police import police as _police
 from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
 from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
@@ -297,7 +297,7 @@ async def ship(ctx, *people):
     embed.add_field(name=f":twisted_rightwards_arrows: `{merge(a, b)}`", value=f"**{val}%** {bar} {msg}")
     await ctx.send(content=f":two_hearts: `{a}`\n:two_hearts: `{b}`", embed=embed)
 
-@bot.command()
+@bot.command(name = "sniper", aliases = ["snipe"])
 @nobl()
 async def sniper(ctx):
     color = discord.Colour.from_rgb(random.randrange(0,255), random.randrange(0,255), random.randrange(0,255))
