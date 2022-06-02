@@ -9,7 +9,7 @@ from datetime import datetime
 from dateutil import relativedelta
 import math
 import random
-from string import ascii_letters, ascii_uppercase, ascii_lowercase, digits
+from string import ascii_uppercase, ascii_lowercase, digits
 
 import re
 from itertools import combinations, cycle

@@ -1,4 +1,4 @@
-from string import ascii_letters, ascii_lowercase, ascii_uppercase, digits
+from string import ascii_lowercase, ascii_uppercase, digits
 import random
 
 LWORDS = tuple(open("words.txt", "r").read().split("\n"))
