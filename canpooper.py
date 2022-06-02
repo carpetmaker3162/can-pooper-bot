@@ -662,28 +662,20 @@ async def e(ctx, *expression):
         "exempted": exempted,
         "guild": ctx.guild,
     }
-    assert 1
     expression = ' '.join(expression)
-    assert 2
     try:
         tbegin = time.time()
-        assert 3
         output = eval(expression, _globals)
-        assert 4
         color = discord.Colour.from_rgb(0x56, 0x18, 0x90)
     except Exception as e:
-        assert 5
         tbegin = time.time()
         output = e
         color = discord.Colour.from_rgb(0xff, 0x00, 0x00)
-        assert 6
     embed = discord.Embed(title = '',color=color)
     embed.add_field(name='Input',value=f'```py\n{expression}```',inline=False)
     embed.add_field(name='Output',value=f'```py\n{output} ```',inline=False)
     embed.set_footer(text=f'evaluated in {math.floor((time.time() - tbegin) * 1000)} ms')
-    assert 7
     await ctx.send(embed=embed)
-    assert 8
 
 @bot.command()
 @staff()
@@ -696,7 +688,7 @@ async def police(ctx):
 async def send_news(ctx: commands.Context, channel: int):
     channel = bot.get_channel(channel)
     # Check if the person is permitted to publish news articles
-    if not ctx.author.id in POOPER_TIMES_PUBLISHERS:
+    if not ctx.author.id in [650439182204010496, 672892838995820553]:
         await ctx.reply("ur not permitted to publish articles bozo :joy_cat: :joy_cat: :joy_cat:")
         return
     
