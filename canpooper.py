@@ -146,7 +146,7 @@ async def penis(ctx, *user):
     
 @bot.command()
 @nobl()
-async def dm(ctx, user: discord.Member, *message):
+async def dm(ctx, user: discord.User, *message):
     try:
         await user.send(' '.join(message))
         await ctx.message.add_reaction(CHECK_MARK_EMOJI)
@@ -870,7 +870,9 @@ async def _crawl(ctx, *url):
     await ctx.message.add_reaction(HOURGLASS_EMOJI)
 
     w = Wikicrawler(url)
+    
     history = await w.crawl()
+
     if w.exit_code == 0:
         if len(history) == 1:
             path = "Philosophy"

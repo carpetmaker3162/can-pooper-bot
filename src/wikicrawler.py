@@ -25,14 +25,15 @@ class Wikicrawler:
 
         r = requests.get(self.url)
 
+        self.url = r.url
+        self.entry = r.url
+
         if r.status_code == 404:
             self.url = self.url.replace(" ", "_")
             self.history.append(self.url.removeprefix("https://en.wikipedia.org/wiki/").split("#")[0])
             self.exit_code = 1 # = Page not found
             return self.history
 
-        self.url = r.url
-        self.entry = r.url
 
         while self.url != "https://en.wikipedia.org/wiki/Philosophy": # Exit if reached philosophy
             self.history.append(self.url.removeprefix("https://en.wikipedia.org/wiki/").split("#")[0]) # Format "history" list
