@@ -871,7 +871,7 @@ async def _crawl(ctx, *url):
 
     w = Wikicrawler(url)
     history = await w.crawl()
-    if history:
+    if w.exit_code == 0:
         if len(history) == 1:
             path = "Philosophy"
         else:
@@ -882,13 +882,13 @@ async def _crawl(ctx, *url):
     else:
         match w.exit_code:
             case 1:
-                await ctx.reply(f"It seems that <{url}> is not a valid Wikipedia page.")
+                await ctx.reply(f"It seems that <{w.entry}> is not a valid Wikipedia page.")
             case 2:
-                await ctx.reply(f"It seems that following the first URL of every page starting from <{url}> results in a loop.")
+                await ctx.reply(f"It seems that following the first URL of every page starting from <{w.entry}> results in a loop.")
             case 3:
-                await ctx.reply(f"It seems that <{url}> leads to a disambiguation page.\nA disambiguation Wikipedia page is a page with multiple different articles with similar titles.")
+                await ctx.reply(f"It seems that <{w.entry}> leads to a disambiguation page.\nA disambiguation Wikipedia page is a page with multiple different articles with similar titles.")
             case 4:
-                await ctx.reply(f"It seems that following the first URL of every page starting from <{url}> results in a dead end.")
+                await ctx.reply(f"It seems that following the first URL of every page starting from <{w.entry}> results in a dead end.")
 
 if __name__ == "__main__":
     token = open("token.txt","r").read()

@@ -12,6 +12,7 @@ class Wikicrawler:
         self.steps = 0
         self.history = []
         self.exit_code = None
+        self.entry = ""
 
     async def crawl(self): # async because i want to implement this in discord bot later
         if not self.url:
@@ -31,6 +32,7 @@ class Wikicrawler:
             return self.history
 
         self.url = r.url
+        self.entry = r.url
 
         while self.url != "https://en.wikipedia.org/wiki/Philosophy": # Exit if reached philosophy
             self.history.append(self.url.removeprefix("https://en.wikipedia.org/wiki/").split("#")[0]) # Format "history" list
@@ -57,7 +59,7 @@ class Wikicrawler:
                     else:
                         r = requests.get(f"https://en.wikipedia.org{href}") # no need to check for 404 because Wikipedia links are generally not broken
                         self.url = r.url # In case of redirect
-                        if self.url in self.history: # Check if the new URL found has already been visited
+                        if self.url.removeprefix("https://en.wikipedia.org/wiki/").split("#")[0] in self.history: # Check if the new URL found has already been visited
                             self.exit_code = 2 # = Loop detected
                             return self.history
                         found = True # A valid URL has been found
