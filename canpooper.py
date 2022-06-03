@@ -26,6 +26,7 @@ from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
 from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, FIRST_NAMES, \
     LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES
+from src.wikicrawler import Wikicrawler
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -588,7 +589,7 @@ async def echo(ctx, *msg):
         await ctx.message.delete()
     except discord.errors.Forbidden:
         pass
-    await ctx.send(' '.join(msg))
+    await ctx.send(" ".join(msg))
 
 @bot.event
 async def on_ready():
@@ -603,9 +604,9 @@ async def on_ready():
     #channel = bot.get_channel(967137143208161301) # automatically join vc
     #await channel.connect()
 
-    _guild = bot.get_guild(966819556016418856) # start tracking g9ds channels
-    for idx in _guild.text_channels:
-        tracking_channels.append(idx.id)
+    #_guild = bot.get_guild(966819556016418856) # start tracking g9ds channels
+    #for idx in _guild.text_channels:
+    #    tracking_channels.append(idx.id)
 
 @bot.command(name="eval", aliases=["exec", "lol"])
 @owner()
@@ -634,7 +635,10 @@ async def lol(ctx, *, code):
             exec(f"async def func():\n{indent(code, '    ')}", _globals)
             func = await _globals["func"]()
             result = f"{buffer.getvalue()}\n-- {func}\n"
-            await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+            try:
+                await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+            except discord.errors.NotFound:
+                pass
     except Exception as e:
         tbegin = time.time()
         result = "".join(format_exception(e, e, e.__traceback__))
@@ -854,6 +858,37 @@ async def _ghost_ping(ctx, user: discord.User):
         pass
     msg = await ctx.send(user.mention)
     await msg.delete()
+
+@bot.command(name = "crawl", aliases = ["wikicrawl", "wikipedia", "crawler", "wikicrawler", "philosophy"])
+@nobl()
+async def _crawl(ctx, *url):
+    if not url:
+        url = None
+    else:
+        url = " ".join(url)
+
+    await ctx.message.add_reaction(HOURGLASS_EMOJI)
+
+    w = Wikicrawler(url)
+    history = await w.crawl()
+    if history:
+        if len(history) == 1:
+            path = "Philosophy"
+        else:
+            path = ' → '.join(history)
+        embed = discord.Embed(title = "Wikipedia Crawler", description = f"```{path}```")
+        embed.set_footer(text = f"If you go to a Wikipedia article, click on the first link in the page, and repeatedly click the first links in subsequent pages, you will (mostly) reach the page for Philosophy. Here, it took {w.steps} redirects to get to Philosophy")
+        await ctx.reply(embed=embed)
+    else:
+        match w.exit_code:
+            case 1:
+                await ctx.reply(f"It seems that <{url}> is not a valid Wikipedia page.")
+            case 2:
+                await ctx.reply(f"It seems that following the first URL of every page starting from <{url}> results in a loop.")
+            case 3:
+                await ctx.reply(f"It seems that <{url}> leads to a disambiguation page.\nA disambiguation Wikipedia page is a page with multiple different articles with similar titles.")
+            case 4:
+                await ctx.reply(f"It seems that following the first URL of every page starting from <{url}> results in a dead end.")
 
 if __name__ == "__main__":
     token = open("token.txt","r").read()
