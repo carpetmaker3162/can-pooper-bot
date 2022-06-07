@@ -6,7 +6,6 @@ import os
 import sys
 import time
 from datetime import datetime
-from dateutil import relativedelta
 import math
 import random
 from string import ascii_uppercase, ascii_lowercase, digits
@@ -25,8 +24,9 @@ from src.police import police as _police
 from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
 from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, FIRST_NAMES, \
-    LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES
+    LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES, WARNING
 from src.wikicrawler import Wikicrawler
+from src.name_generator import get_name
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -626,6 +626,8 @@ async def lol(ctx, *, code):
         "guild": ctx.guild,
         "dox": dox_command,
         "ghostping": _ghost_ping,
+        "sys": sys,
+        "snipelist": snipelist_
     }
     
     buffer = io.StringIO()
@@ -665,6 +667,7 @@ async def e(ctx, *expression):
         "neng": 'cool',
         "exempted": exempted,
         "guild": ctx.guild,
+        "sys": sys,
     }
     expression = ' '.join(expression)
     try:
@@ -859,6 +862,24 @@ async def _ghost_ping(ctx, user: discord.User):
     msg = await ctx.send(user.mention)
     await msg.delete()
 
+@bot.command(name = "change_name_of_everybody_in_the_server")
+@dev()
+async def name(ctx):
+    if not ctx.guild.me.guild_permissions.manage_nicknames:
+        await ctx.message.add_reaction(CROSS_MARK_EMOJI)
+        return
+    await ctx.message.add_reaction(HOURGLASS_EMOJI)
+    for member in ctx.guild.members:
+        try:
+            await member.edit(nick = await get_name())
+        except discord.errors.Forbidden:
+            await ctx.message.add_reaction(WARNING)
+        except discord.errors.HTTPException:
+            pass
+    await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+    await asyncio.sleep(1)
+    await ctx.message.clear_reactions()
+
 @bot.command(name = "crawl", aliases = ["wikicrawl", "wikipedia", "crawler", "wikicrawler", "philosophy"])
 @nobl()
 async def _crawl(ctx, *url):
@@ -870,7 +891,7 @@ async def _crawl(ctx, *url):
     await ctx.message.add_reaction(HOURGLASS_EMOJI)
 
     w = Wikicrawler(url)
-    
+
     history = await w.crawl()
 
     if w.exit_code == 0:
