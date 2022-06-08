@@ -523,6 +523,11 @@ async def help(ctx):
     embed.set_footer(text="nghfnhghnghfnghf")
     await ctx.send(embed=embed)
 
+@bot.command(name = "commands")
+@nobl()
+async def _commands(ctx):
+    await ctx.reply(f"```py\n{[str(x) for x in bot.commands]} ```")
+
 @bot.command()
 @dev()
 async def restart(ctx):
@@ -684,9 +689,9 @@ async def e(ctx, *expression):
     embed.set_footer(text=f'evaluated in {math.floor((time.time() - tbegin) * 1000)} ms')
     await ctx.send(embed=embed)
 
-@bot.command()
+@bot.command(name = "police")
 @staff()
-async def police(ctx):
+async def _police(ctx):
     global police
     police = not police
     await ctx.send(f"police mode is now `{police}`")
