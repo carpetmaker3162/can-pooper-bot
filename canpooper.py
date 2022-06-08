@@ -26,7 +26,7 @@ from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, FIRST_NAMES, \
     LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES, WARNING
 from src.wikicrawler import Wikicrawler
-from src.name_generator import get_name
+from src.names import get_name
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -721,11 +721,11 @@ async def school(ctx):
 
 @bot.event
 async def on_message(message):
-    """
+
     print(f'---New Message---\nContent: "{message.content}"\nUser: {message.author}\nChannel: ',end='')
     try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
     except: print("possibly a dm\n")
-    """
+
     
     if message.author.bot:
         return
