@@ -6,8 +6,6 @@ class BrainfuckInterpreter:
         self.array = [0 for _ in range(30000)]
         self.validchars = (">", "<", "+", "-", ".", ",", "[", "]")
         self.bfcode = bfcode
-        self.output = ""
-        self.reason = None
         self.runningloops = []
         self.loops = self.all_loops(self.bfcode)
         self.t = time.time()
