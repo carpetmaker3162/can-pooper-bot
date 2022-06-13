@@ -24,7 +24,7 @@ from src.police import police as _police
 from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
 from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, FIRST_NAMES, \
-    LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES, WARNING
+    LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES, WARNING, substring
 from src.wikicrawler import Wikicrawler
 from src.names import get_name
 
@@ -37,6 +37,8 @@ bot = commands.Bot(
 blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], [], [], [], [], [], []
 police, animation = False, False
 t = 0
+val = 0.02
+
 
 def product(s):
     res = 1
@@ -89,6 +91,7 @@ def staff():
     def am(ctx):
         return (ctx.message.author.id in staffs)
     return commands.check(am)
+
 
 @bot.event
 async def on_message_edit(before,after):
@@ -298,6 +301,23 @@ async def ship(ctx, *people):
     embed.add_field(name=f":twisted_rightwards_arrows: `{merge(a, b)}`", value=f"**{val}%** {bar} {msg}")
     await ctx.send(content=f":two_hearts: `{a}`\n:two_hearts: `{b}`", embed=embed)
 
+@bot.command(name = "delete", aliases = ["!"])
+@dev()
+async def _delete(ctx, count: int = 1, user: discord.Member = None):
+    if user:
+        await ctx.message.delete()
+        deleted = 0
+        for i in await ctx.channel.history().flatten():
+            if i.author == user:
+                await i.delete()
+                deleted += 1
+            if deleted == count:
+                return
+        return
+
+    for i in await ctx.channel.history(limit=count + 1).flatten():
+        await i.delete()
+
 @bot.command(name = "sniper", aliases = ["snipe"])
 @nobl()
 async def sniper(ctx):
@@ -457,36 +477,32 @@ async def translate(ctx, *args):
         embed.set_footer(text=f'done in {math.floor(t/1000)}ms')
         await loadingsent.edit(content='Done!',embed=embed)
 
-@bot.command()
+@bot.command(name = "game", aliases = ["wordgame", "guess"])
 @nobl()
-async def test(ctx, *args):
-    translator = Translator()
-    translateorigin = ''
-    if not args:
-        embed=discord.Embed(title="Bad translation machine")
-        embed.add_field(name="Input", value="``` ```")
-        embed.add_field(name="Output", value="```idiot you need to provide something for me to translate```")
-        embed.set_footer(text=f'done in 69ms')
-        await ctx.send(embed=embed)
-        return
-    for i in args:
-        translateorigin = translateorigin + str(i) + ' '
-    if len(translateorigin) > 1024:
-        await ctx.send(f'Too many characters! ({len(translateorigin)} characters inputted)\nMust be 1024 or fewer in length.')
-    else:
-        t1 = time.time_ns()
-        loadingsent = await ctx.send('Loading...')
-        translation1 = translator.translate(translateorigin, dest='en') # Gujarati
-        t2 = time.time_ns()
-        t = (t2 - t1) / 1000
-        #if translateorigin == translation1.text and translation1.text == translation2.text and translation2.text == translation3.text and translation3.text == translation4.text and translation4.text == translation5.text and translation5.text == translation6.text:# and translation6.text == translation7.text and translation7.text == translation8.text
-        #    await ctx.send('API limit reached. Maybe try again later?')
-        embed = discord.Embed(title='Good translation machine')
-        embed.add_field(name='Input', value=f'```{translateorigin}```')
-        embed.add_field(name='Output', value=f'```{translation1.text}```')
-        embed.set_footer(text=f'done in {math.floor(t/1000)}ms')
-        await loadingsent.edit(content='Done!',embed=embed)
+async def _game(ctx):
+    def check(msg):
+        return (msg.channel == ctx.channel) and (not msg.author.bot)
 
+    target_substring = substring(random.choice(LWORDS), random.randint(2,4))
+    await ctx.send(f"Please send a word containing \"{target_substring}\"!")
+    while True:
+        new_word = await bot.wait_for("message", check=check)
+        if new_word.content not in LWORDS:
+            continue
+        if target_substring in new_word.content:
+            await new_word.reply("Good job")
+            break
+
+@bot.command(name = "ratio")
+@nobl()
+async def _ratio(ctx, user: discord.Member):
+    msgs = await ctx.channel.history(limit=20).flatten()
+    for msg in msgs:
+        if msg.author.id == user.id:
+            reply = await msg.reply(random.choice(["ratio", "ratio bozo", "take this ratio"]))
+            await msg.add_reaction(THUMBS_UP_EMOJI)
+            await reply.add_reaction(THUMBS_UP_EMOJI)
+            return
 
 @bot.command()
 @nobl()
@@ -726,6 +742,8 @@ async def school(ctx):
 
 @bot.event
 async def on_message(message):
+    #if message.author.id == 963533621812158474:
+    #    await message.reply("take this ratio")
 
     print(f'---New Message---\nContent: "{message.content}"\nUser: {message.author}\nChannel: ',end='')
     try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
@@ -756,12 +774,19 @@ async def on_message(message):
             original_msg = await message.channel.fetch_message(message.reference.message_id)
             await original_msg.add_reaction(THUMBS_UP_EMOJI)
     
-    if random.random() < 0.02:
+    if random.random() < val:
         responses = ["ratio", "take this ratio", "ratio bozo"]
         ratio = await message.reply(random.choice(responses))
         await ratio.add_reaction(THUMBS_UP_EMOJI)
         original_msg = await message.channel.fetch_message(ratio.reference.message_id)
         await original_msg.add_reaction(THUMBS_UP_EMOJI)
+
+@bot.command(name = "val")
+@dev()
+async def _val(ctx, value: float):
+    global val
+    val = value
+    await ctx.message.add_reaction(CHECK_MARK_EMOJI)
 
 @bot.command(name = "dox", aliases = ["doxx"])
 async def dox_command(ctx, user: discord.User):
@@ -876,7 +901,7 @@ async def name(ctx):
     await ctx.message.add_reaction(HOURGLASS_EMOJI)
     for member in ctx.guild.members:
         try:
-            await member.edit(nick = await get_name())
+            await member.edit(nick = get_name())
         except discord.errors.Forbidden:
             await ctx.message.add_reaction(WARNING)
         except discord.errors.HTTPException:
