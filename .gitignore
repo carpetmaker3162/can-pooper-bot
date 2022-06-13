@@ -2,6 +2,7 @@
 token.txt
 report_logs.txt
 msg_count.txt
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
