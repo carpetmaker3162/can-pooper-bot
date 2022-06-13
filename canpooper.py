@@ -27,7 +27,6 @@ from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES, WARNING, substring
 from src.wikicrawler import Wikicrawler
 from src.names import get_name
-from src.emojis import ALL_EMOJIS
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -149,7 +148,7 @@ async def penis(ctx, *user):
     await ctx.send(embed=embed)
     
 @bot.command()
-@nobl()
+@dev()
 async def dm(ctx, user: discord.User, *message):
     try:
         await user.send(' '.join(message))
@@ -484,13 +483,16 @@ async def _game(ctx):
     def check(msg):
         return (msg.channel == ctx.channel) and (not msg.author.bot)
 
-    target_substring = substring(random.choice(LWORDS), random.randint(2,4))
+    target_substring = substring(random.choice(LWORDS), random.choice([2,3,4]))
     await ctx.send(f"Please send a word containing \"{target_substring}\"!")
     while True:
         new_word = await bot.wait_for("message", check=check)
-        if new_word.content not in LWORDS:
+        if new_word.content.lower() == "`stop":
+            await new_word.add_reaction(CHECK_MARK_EMOJI)
+            break
+        if new_word.content.lower() not in LWORDS:
             continue
-        if target_substring in new_word.content:
+        if target_substring in new_word.content.lower():
             await new_word.reply("Good job")
             break
 
