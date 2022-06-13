@@ -27,6 +27,7 @@ from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES, WARNING, substring
 from src.wikicrawler import Wikicrawler
 from src.names import get_name
+from src.emojis import ALL_EMOJIS
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -742,8 +743,9 @@ async def school(ctx):
 
 @bot.event
 async def on_message(message):
-    #if message.author.id == 963533621812158474:
-    #    await message.reply("take this ratio")
+    if message.author.id == 963533621812158474:
+        #await message.reply("take this ratio")
+        pass
 
     print(f'---New Message---\nContent: "{message.content}"\nUser: {message.author}\nChannel: ',end='')
     try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
