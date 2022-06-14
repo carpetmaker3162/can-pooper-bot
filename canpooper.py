@@ -27,6 +27,7 @@ from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES, WARNING, substring
 from src.wikicrawler import Wikicrawler
 from src.names import get_name
+from src.translate import translate
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -441,41 +442,10 @@ async def about(ctx):
     embed.set_footer(text="a creative footer because im out of ideas")
     await ctx.send(embed=embed)
 
-@bot.command()
+@bot.command(name="translate")
 @nobl()
-async def translate(ctx, *args):
-    translator = Translator()
-    translateorigin = ''
-    if not args:
-        embed=discord.Embed(title="Bad translation machine")
-        embed.add_field(name="Input", value="``` ```")
-        embed.add_field(name="Output", value="```idiot you need to provide something for me to translate```")
-        embed.set_footer(text=f'done in 69ms')
-        await ctx.send(embed=embed)
-        return
-    for i in args:
-        translateorigin = translateorigin + str(i) + ' '
-    if len(translateorigin) > 1024:
-        await ctx.send(f'Too many characters! ({len(translateorigin)} characters inputted)\nMust be 1024 or fewer in length.')
-    else:
-        t1 = time.time_ns()
-        loadingsent = await ctx.send('Loading...')
-        translation1 = translator.translate(translateorigin, dest='gu') # Gujarati
-        translation2 = translator.translate(translation1.text, dest='so') # Somali
-        translation3 = translator.translate(translation2.text, dest='ja') # Japanese
-        translation4 = translator.translate(translation3.text, dest='xh') # Xhosa
-        translation5 = translator.translate(translation4.text, dest='ko') # Korean
-        translation6 = translator.translate(translation5.text, dest='mi') # Maori
-        translation7 = translator.translate(translation6.text, dest='en') # English
-        t2 = time.time_ns()
-        t = (t2 - t1) / 1000
-        if translateorigin == translation1.text and translation1.text == translation2.text and translation2.text == translation3.text and translation3.text == translation4.text and translation4.text == translation5.text and translation5.text == translation6.text:# and translation6.text == translation7.text and translation7.text == translation8.text
-            await ctx.send('API limit reached. Maybe try again later?')
-        embed = discord.Embed(title='Bad translation machine')
-        embed.add_field(name='Input', value=f'```{translateorigin}```')
-        embed.add_field(name='Output', value=f'```{translation7.text}```')
-        embed.set_footer(text=f'done in {math.floor(t/1000)}ms')
-        await loadingsent.edit(content='Done!',embed=embed)
+async def _translate(ctx, *args):
+    await translate(ctx, " ".join(args))
 
 @bot.command(name = "game", aliases = ["wordgame", "guess"])
 @nobl()
@@ -483,7 +453,7 @@ async def _game(ctx):
     def check(msg):
         return (msg.channel == ctx.channel) and (not msg.author.bot)
 
-    target_substring = substring(random.choice(LWORDS), random.choice([2,3,4]))
+    target_substring = substring(random.choice(LWORDS), random.choice([2,3]))
     await ctx.send(f"Please send a word containing \"{target_substring}\"!")
     while True:
         new_word = await bot.wait_for("message", check=check)
@@ -491,6 +461,9 @@ async def _game(ctx):
             await new_word.add_reaction(CHECK_MARK_EMOJI)
             break
         if new_word.content.lower() not in LWORDS:
+            continue
+        if new_word.content == target_substring:
+            await new_word.reply("dont be lazy choose a different word")
             continue
         if target_substring in new_word.content.lower():
             await new_word.reply("Good job")
@@ -506,6 +479,7 @@ async def _ratio(ctx, user: discord.Member):
             await msg.add_reaction(THUMBS_UP_EMOJI)
             await reply.add_reaction(THUMBS_UP_EMOJI)
             return
+    await ctx.message.add_reaction(CROSS_MARK_EMOJI)
 
 @bot.command()
 @nobl()
@@ -871,6 +845,11 @@ async def convert(ctx, value: float, currency = None):
     await ctx.reply(embed = embed)
 
 @bot.command()
+@dev()
+async def test(ctx, *args):
+    await translate(ctx, " ".join(args))
+
+@bot.command()
 @nobl()
 async def nitro(ctx, user: discord.User = None):
     code = ''.join([random.choice(ascii_lowercase + ascii_uppercase + digits) for i in range(24)])
@@ -915,7 +894,7 @@ async def name(ctx):
     await ctx.message.clear_reactions()
 
 @bot.command(name = "crawl", aliases = ["wikicrawl", "wikipedia", "crawler", "wikicrawler", "philosophy"])
-@nobl()
+@dev()
 async def _crawl(ctx, *url):
     if not url:
         url = None
@@ -949,4 +928,4 @@ async def _crawl(ctx, *url):
 
 if __name__ == "__main__":
     token = open("token.txt","r").read()
-    bot.run(token) 
+    bot.run(token)
