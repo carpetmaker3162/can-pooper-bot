@@ -1,34 +1,163 @@
-WORD_CHOICES = [
-    "bozo",
-    "ratio",
-    "you are a bozo",
-]
+import random
+from src.consts import LWORDS
 
-FIGURES = [r"""
- |-----
- |    O
- |   /|\
- |   / \
-_|_
-""",
+WORD_CHOICES = {
+    "people": [
+        "anthony huang",
+        "mazin ghizali",
+        "mazin",
+        "can pooper",
+        "null",
+        "neng li",
+        "liangyue zhao",
+        "deshpande",
+        "shiva",
+        "jay mardikar",
+        "yue",
+        "fhdbot",
+        "fhdhgngn",
+    ],
+    "food": [
+        "deez nuts",
+        "hamburger",
+        "cheeseburger",
+        "tomato",
+        "potato",
+        "french fries",
+        "cock",
+        "chicken",
+        "beef"
+    ],
+    "countries": [
+        "afghanistan",
+        "albania",
+        "algeria",
+        "argentina",
+        "armenia",
+        "argentina",
+        "austria",
+        "australia",
+        "bahamas",
+        "bangladesh",
+        "belarus",
+        "belgium",
+        "bolivia",
+        "botswana",
+        "brazil",
+        "bulgaria",
+        "cambodia",
+        "canada",
+        "chad",
+        "chile",
+        "china",
+        "columbia",
+        "costa rica",
+        "croatia",
+        "cuba",
+        "czechia",
+        "denmark",
+        "dominica",
+        "ecuador",
+        "egypt",
+        "estonia",
+        "eritrea",
+        "ethiopia",
+        "finland",
+        "france",
+        "georgia",
+        "greece",
+        "haiti",
+        "hungary",
+        "iceland",
+        "india",
+        "indonesia",
+        "iran",
+        "iraq",
+        "iceland",
+        "israel",
+        "italy",
+        "jamaica",
+        "japan",
+        "jordan",
+        "kenya",
+        "kuwait",
+        "laos",
+        "latvia",
+        "lebanon",
+        "liberia",
+        "libya",
+        "liechtenstein",
+        "lithuania",
+        "luxembourg",
+        "madagascar",
+        "malaysia",
+        "maldives",
+        "mali",
+        "malta",
+        "mexico",
+        "mongolia",
+        "myanmar",
+        "nepal",
+        "netherlands",
+        "new zealand",
+        "nigeria",
+        "north korea",
+        "norway",
+        "oman",
+        "pakistan",
+        "palestine state",
+        "panama",
+        "papua new guinea",
+        "peru",
+        "philoppines",
+        "poland",
+        "portugal",
+        "romania",
+        "russia",
+        "saudi arabia",
+        "serbia",
+        "singapore",
+        "slovakia",
+        "somalia",
+        "south africa",
+        "south korea",
+        "spain",
+        "sudan",
+        "sri lanka",
+        "sweden",
+        "switzerland",
+        "syria",
+        "thailand",
+        "russia",
+        "turkey",
+        "turkmenistan",
+        "uganda",
+        "ukraine",
+        "united arab emirates",
+        "united kingdom",
+        "united states",
+        "venezuela",
+        "vietnam",
+        "yemen",
+        "zambia",
+        "zimbabwe",
+    ]
+}
+
+
+
+FIGURES = [
 r"""
  |-----
- |    O
- |   /|\
- |     \
-_|_
-""",
-r"""
- |-----
- |    O
- |   /|\
+ |    
+ |    
  |      
 _|_
 """,
 r"""
  |-----
  |    O
- |    |\
+ |    
  |      
 _|_
 """,
@@ -42,15 +171,29 @@ _|_
 r"""
  |-----
  |    O
- |    
+ |    |\
  |      
 _|_
 """,
 r"""
  |-----
- |    
- |    
+ |    O
+ |   /|\
  |      
+_|_
+""",
+r"""
+ |-----
+ |    O
+ |   /|\
+ |     \
+_|_
+""",
+r"""
+ |-----
+ |    O
+ |   /|\
+ |   / \
 _|_
 """,
 ]

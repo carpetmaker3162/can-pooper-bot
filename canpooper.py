@@ -472,21 +472,26 @@ async def _game(ctx):
 
 @bot.command(name = "hangman")
 @nobl()
-async def _hangman(ctx):
-    h = Hangman(random.choice(WORD_CHOICES))
+async def _hangman(ctx, *_category):
+    if not _category:
+        category = random.choice(list(WORD_CHOICES.keys()))
+    else:
+        category = " ".join(_category)
+    target = random.choice(WORD_CHOICES[category])
+    h = Hangman(target)
     def check(msg):
         return (msg.channel == ctx.channel) and (msg.author.id == ctx.author.id) and (not msg.author.bot)
     embed = discord.Embed(title="Hangman")
     embed.set_footer(text=f"{ctx.author} | say 'EXIT' to run away like a coward")
     while True:
-        embed.description = f"```\n{FIGURES[h.life]}\n\nWord: {' '.join(h.configuration)}```"
+        embed.description = f"```\n{FIGURES[h.life]}\n\nCategory: {category}\nWord: {' '.join(h.configuration)}```"
         embed.title = f"Hangman (Lives left: {6-h.life})"
         await ctx.send(content=f"{ctx.author.mention}", embed=embed)
         msg = await bot.wait_for("message", check=check)
-        if msg.content == 'EXIT':
-            await ctx.send(f"{ctx.author.mention} you ran away from the game, thinking you will finally wake up from the nightmare. But in reality, you are ever closer to the all-consuming void. This time, you have escaped your fate by sacrificing hangman, by killing him to spare yourself. Be sure that the gods are aware of your cowardliness and treachery, and will make your life even more difficult before your very being gets consumed by the beast. ")
+        if (msg.content.upper() == msg.content) and (msg.content.upper() == 'EXIT'):
+            await ctx.send(f"{ctx.author.mention} you ran away from the game, thinking you will finally wake up from the nightmare. But in reality, you are ever closer to the all-consuming void. This time, you have escaped your fate by sacrificing hangman, by killing him to spare yourself. Be sure that the gods are aware of your cowardliness and treachery, and will make your life even more difficult before your very being gets consumed by the beast. Now you will never find out what the correct word was.")
             break
-        match h.guess(msg.content):
+        match h.guess(msg.content.lower()):
             case 0:
                 await ctx.send(f"{ctx.author.mention} congratulations you have won, i guess you are mildly intelligent")
                 break
@@ -495,8 +500,14 @@ async def _hangman(ctx):
             case -2:
                 await ctx.send(f"{ctx.author.mention} '{msg.content}' is not the correct word idiot! lol! lmao! (Life -1)")
             case -999:
-                await ctx.send(f"{ctx.author.mention} HANGMAN DIED RIP")
+                await ctx.send(f"{ctx.author.mention} HANGMAN DIED RIP (the word was: {h.target})")
                 return
+
+@bot.command(name = "countries", aliases = ["country", "countryguess"])
+@nobl()
+async def _countries(ctx):
+    await _hangman(ctx, "countries")
+
 
 @bot.command(name = "ratio")
 @nobl()
@@ -566,7 +577,7 @@ async def unix(ctx):
 async def ping(ctx):
     await ctx.reply("Ping: `" + str(round(bot.latency * 1000)) + "` ms")
 
-@bot.command(name="death",aliases = ["deathdate","whenwillidie","dead"])
+@bot.command(name="death", aliases = ["deathdate","whenwillidie","dead"])
 @nobl()
 async def _death(ctx, *person : discord.Member):
     if not person:
