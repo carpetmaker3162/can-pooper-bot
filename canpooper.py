@@ -683,10 +683,8 @@ async def lol(ctx, *, code):
     except Exception as e:
         tbegin = time.time()
         result = "".join(format_exception(e, e, e.__traceback__))
-        def ballsacks(txt):
-            return txt.replace("neng","n") # for hiding my name ong
         embed=discord.Embed(title='')
-        embed.add_field(name='imagine getting an error',value = ballsacks((f'```py\n{result}```')))
+        embed.add_field(name='imagine getting an error', value = (f'```py\n{result}```'))
         embed.set_footer(text=f'evaluated in {math.floor((time.time()-tbegin)*1000)} ms')
         await ctx.send(embed=embed)
 
