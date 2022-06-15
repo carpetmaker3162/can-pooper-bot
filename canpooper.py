@@ -484,7 +484,8 @@ async def _hangman(ctx, *_category):
     embed = discord.Embed(title="Hangman")
     embed.set_footer(text=f"{ctx.author} | say 'EXIT' to run away like a coward")
     while True:
-        embed.description = f"```\n{FIGURES[h.life]}\n\nCategory: {category}\nWord: {' '.join(h.configuration)}```"
+        #embed.description = f"```\n{FIGURES[h.life]}\n\nCategory: {category}\nWord: {' '.join(h.configuration)}\nWrong guesses: {', '.join(h.wrong_guesses)}```"
+        embed.description = f"```Category: {category}\nWord: {' '.join(h.configuration)}\nWrong guesses: {', '.join(h.wrong_guesses)}```"
         embed.title = f"Hangman (Lives left: {6-h.life})"
         await ctx.send(content=f"{ctx.author.mention}", embed=embed)
         msg = await bot.wait_for("message", check=check)
@@ -493,7 +494,7 @@ async def _hangman(ctx, *_category):
             break
         match h.guess(msg.content.lower()):
             case 0:
-                await ctx.send(f"{ctx.author.mention} congratulations you have won, i guess you are mildly intelligent")
+                await ctx.send(f"{ctx.author.mention} congratulations you have won, i guess you are mildly intelligent (word was: {h.target})")
                 break
             case -1:
                 await ctx.send(f"{ctx.author.mention} '{msg.content}' is not in the word idiot! (Life -1)")

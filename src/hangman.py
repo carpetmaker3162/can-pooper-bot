@@ -102,6 +102,7 @@ WORD_CHOICES = {
         "fhdbot",
         "fhdhgngn",
     ],
+    "random": [],
     "food": [
         "deez nuts",
         "hamburger",
@@ -111,7 +112,8 @@ WORD_CHOICES = {
         "french fries",
         "cock",
         "chicken",
-        "beef"
+        "beef",
+        "abcdefghijklmnopqrstuvwxyz"
     ],
     "countries": [
         "afghanistan",
@@ -135,7 +137,7 @@ WORD_CHOICES = {
         "chad",
         "chile",
         "china",
-        "columbia",
+        "colombia",
         "costa rica",
         "croatia",
         "cuba",
@@ -194,7 +196,7 @@ WORD_CHOICES = {
         "panama",
         "papua new guinea",
         "peru",
-        "philoppines",
+        "philippines",
         "poland",
         "portugal",
         "romania",
@@ -206,6 +208,7 @@ WORD_CHOICES = {
         "somalia",
         "south africa",
         "south korea",
+        "soviet union",
         "spain",
         "sudan",
         "sri lanka",
@@ -228,3 +231,6 @@ WORD_CHOICES = {
         "zimbabwe",
     ]
 }
+
+for i in range(100):
+    WORD_CHOICES["random"].append(random.choice(LWORDS))
