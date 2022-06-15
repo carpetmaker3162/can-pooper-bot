@@ -136,6 +136,7 @@ STREET_TYPES = [
     "Freeway",
     "Highway",
     "Way",
+    "Pooper",
 ]
 
 

@@ -23,12 +23,12 @@ from src.brainfuck import BrainfuckInterpreter
 from src.police import police as _police
 from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
 from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
-    HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, FIRST_NAMES, \
-    LAST_NAMES, STREET_NAME_ENDINGS, STREET_TYPES, WARNING, substring
+    HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING, substring
 from src.wikicrawler import Wikicrawler
 from src.names import get_name
 from src.translate import translate
 from src.hangman import Hangman, WORD_CHOICES, FIGURES
+from src.dox import Doxxer
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -808,60 +808,23 @@ async def _val(ctx, value: float):
 
 @bot.command(name = "dox", aliases = ["doxx"])
 async def dox_command(ctx, user: discord.User):
-    random.seed(user.id / 13)
-
     msg: discord.Message = await ctx.send("Waiting...")
-    await asyncio.sleep(5)
+    await asyncio.sleep(2)
+    doxxer = Doxxer(user.id / 13)
 
     # insert stuff here
 
     embed = discord.Embed(
         title = "Private Information Extractor v1.0.4",
-        description = f"{user.mention}'s info:",
+        description = f"{user.mention}'s info:"
     )
+    embed.add_field(name = "FULL NAME", value = doxxer.full_name, inline = False)
+    embed.add_field(name = "AGE", value = f"{doxxer.age} years", inline = False)
+    embed.add_field(name = "GENDER", value = doxxer.gender, inline = False)
+    embed.add_field(name = "ADDRESS", value = doxxer.address, inline = False)
+    embed.add_field(name = "IP ADDRESS", value = doxxer.ip, inline = False)
+    embed.add_field(name = "DISCORD AUTH TOKEN", value = doxxer.token, inline = False)
 
-    embed.add_field(
-        name = "FULL NAME",
-        value = random.choice(FIRST_NAMES) + " " + random.choice(LAST_NAMES),
-        inline = False
-    )
-
-    embed.add_field(
-        name = "AGE",
-        value = f"{random.randrange(2,150)} years",
-        inline = False
-    )
-
-    embed.add_field(
-        name = "GENDER",
-        value = random.choice(("Male", "Male", "Male", "Female", "Female", "Female", "Non-binary")),
-        inline = False
-    )
-    
-    embed.add_field(
-        name = "ADDRESS",
-        value = str(random.randrange(1, 2500)) + " " + random.choice(LWORDS).title() + random.choice(STREET_NAME_ENDINGS) + " " + random.choice(STREET_TYPES),
-        inline = False
-    )
-
-    embed.add_field(
-        name = "IP ADDRESS",
-        value = str(random.randrange(0, 256)) + "." + str(random.randrange(0, 256)) + "." + str(random.randrange(0, 256)) + "." + str(random.randrange(0, 256)),
-        inline = False
-    )
-
-    t1 = ''.join([random.choice(ascii_uppercase + ascii_uppercase + ascii_uppercase + ascii_lowercase + digits) for i in range(24)])
-    t2 = ''.join([random.choice(ascii_uppercase + ascii_uppercase + digits) for i in range(6)])
-    t3 = ''.join([random.choice(ascii_uppercase + ascii_lowercase + digits) for i in range(11)])
-    t4 = ''.join([random.choice(ascii_uppercase + digits) for i in range(5)])
-    
-    embed.add_field(
-        name = "DISCORD AUTH TOKEN",
-        value = t1 + "." + t2 + "." + t3 + "-" + t4,
-        inline = False
-    )
-
-    random.seed(None)
     embed.set_footer(text = "for legal reasons this is a joke (but is it really?)")
 
     await msg.edit(content="", embed=embed)
