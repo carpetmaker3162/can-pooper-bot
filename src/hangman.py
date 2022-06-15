@@ -1,3 +1,60 @@
+WORD_CHOICES = [
+    "bozo",
+    "ratio",
+    "you are a bozo",
+]
+
+FIGURES = [r"""
+ |-----
+ |    O
+ |   /|\
+ |   / \
+_|_
+""",
+r"""
+ |-----
+ |    O
+ |   /|\
+ |     \
+_|_
+""",
+r"""
+ |-----
+ |    O
+ |   /|\
+ |      
+_|_
+""",
+r"""
+ |-----
+ |    O
+ |    |\
+ |      
+_|_
+""",
+r"""
+ |-----
+ |    O
+ |    |
+ |      
+_|_
+""",
+r"""
+ |-----
+ |    O
+ |    
+ |      
+_|_
+""",
+r"""
+ |-----
+ |    
+ |    
+ |      
+_|_
+""",
+]
+
 class Hangman:
     def __init__(self, target_word) -> None:
         self.target = target_word

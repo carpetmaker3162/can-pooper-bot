@@ -28,6 +28,7 @@ from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
 from src.wikicrawler import Wikicrawler
 from src.names import get_name
 from src.translate import translate
+from src.hangman import Hangman, WORD_CHOICES, FIGURES
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -469,6 +470,34 @@ async def _game(ctx):
             await new_word.reply("Good job")
             break
 
+@bot.command(name = "hangman")
+@nobl()
+async def _hangman(ctx):
+    h = Hangman(random.choice(WORD_CHOICES))
+    def check(msg):
+        return (msg.channel == ctx.channel) and (msg.author.id == ctx.author.id) and (not msg.author.bot)
+    embed = discord.Embed(title="Hangman")
+    embed.set_footer(text=f"{ctx.author} | say 'EXIT' to run away like a coward")
+    while True:
+        embed.description = f"```\n{FIGURES[h.life]}\n\nWord: {' '.join(h.configuration)}```"
+        embed.title = f"Hangman (Lives left: {6-h.life})"
+        await ctx.send(content=f"{ctx.author.mention}", embed=embed)
+        msg = await bot.wait_for("message", check=check)
+        if msg.content == 'EXIT':
+            await ctx.send(f"{ctx.author.mention} you ran away from the game, thinking you will finally wake up from the nightmare. But in reality, you are ever closer to the all-consuming void. This time, you have escaped your fate by sacrificing hangman, by killing him to spare yourself. Be sure that the gods are aware of your cowardliness and treachery, and will make your life even more difficult before your very being gets consumed by the beast. ")
+            break
+        match h.guess(msg.content):
+            case 0:
+                await ctx.send(f"{ctx.author.mention} congratulations you have won, i guess you are mildly intelligent")
+                break
+            case -1:
+                await ctx.send(f"{ctx.author.mention} '{msg.content}' is not in the word idiot! (Life -1)")
+            case -2:
+                await ctx.send(f"{ctx.author.mention} '{msg.content}' is not the correct word idiot! lol! lmao! (Life -1)")
+            case -999:
+                await ctx.send(f"{ctx.author.mention} HANGMAN DIED RIP")
+                return
+
 @bot.command(name = "ratio")
 @nobl()
 async def _ratio(ctx, user: discord.Member):
@@ -583,10 +612,11 @@ async def say(ctx, channelid, *msg):
 @bot.command()
 @nobl()
 async def echo(ctx, *msg):
-    try: 
-        await ctx.message.delete()
-    except discord.errors.Forbidden:
-        pass
+    if ctx.author.id in [672892838995820553, 650439182204010496]:
+        try: 
+            await ctx.message.delete()
+        except discord.errors.Forbidden:
+            pass
     await ctx.send(" ".join(msg))
 
 @bot.event
