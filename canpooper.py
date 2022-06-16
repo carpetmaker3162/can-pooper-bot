@@ -25,6 +25,7 @@ from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
 from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING, substring
 from src.philosophy import Wikicrawler
+from src.wikicrawler import Crawler
 from src.names import get_name
 from src.translate import translate
 from src.hangman import Hangman, WORD_CHOICES, FIGURES
@@ -39,7 +40,7 @@ bot = commands.Bot(
 blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], [], [], [], [], [], []
 police, animation = False, False
 t = 0
-val = 0.02
+val = 0
 
 
 def product(s):
@@ -896,7 +897,7 @@ async def name(ctx):
     await asyncio.sleep(1)
     await ctx.message.clear_reactions()
 
-@bot.command(name = "crawl", aliases = ["wikicrawl", "wikipedia", "crawler", "wikicrawler", "philosophy"])
+@bot.command(name = "crawl")
 @dev()
 async def _crawl(ctx, *url):
     if not url:
@@ -928,6 +929,28 @@ async def _crawl(ctx, *url):
                 await ctx.reply(f"It seems that <{w.entry}> leads to a disambiguation page.\nA disambiguation Wikipedia page is a page with multiple different articles with similar titles.")
             case 4:
                 await ctx.reply(f"It seems that following the first URL of every page starting from <{w.entry}> results in a dead end.")
+
+@bot.command(name = "search", aliases = ["google", "wikipedia"])
+@nobl()
+async def _search(ctx, *url):
+    url = ' '.join(url)
+    url = url.replace(" ", "_").capitalize()
+    if not url.startswith("https://en.wikipedia.org/wiki/"):
+        url = "https://en.wikipedia.org/wiki/" + url
+    await ctx.reply("Warning: This command is in beta. Please expect it to be extremely broken")
+    crawler = Crawler(url)
+    crawler.search_paragraphs()
+    try:
+        if crawler.disambiguation:
+            name = url.replace("https://en.wikipedia.org/wiki/", "")
+            
+            formatted = '\n- '.join(crawler.results)
+            await ctx.reply(f"{name} may refer to the following:\n- {formatted}\n\n")
+        else:
+            formatted = '\n\n'.join(crawler.results)
+            await ctx.reply(f"{formatted[:500]}\n\n")
+    except discord.errors.HTTPException:
+        await ctx.reply("you are such a bozo, the link you sent was invalid")
 
 if __name__ == "__main__":
     token = open("token.txt","r").read()
