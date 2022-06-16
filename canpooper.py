@@ -24,7 +24,7 @@ from src.police import police as _police
 from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
 from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING, substring
-from src.wikicrawler import Wikicrawler
+from src.philosophy import Wikicrawler
 from src.names import get_name
 from src.translate import translate
 from src.hangman import Hangman, WORD_CHOICES, FIGURES
