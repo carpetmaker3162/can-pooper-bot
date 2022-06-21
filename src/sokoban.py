@@ -1,10 +1,13 @@
-class SokobanPuzzle:
-    def __init__(self, grid, points) -> None:
+# from dataclasses import dataclass
+from copy import deepcopy
+
+class Puzzle:
+    def __init__(self, grid, score) -> None:
         self.grid = grid
-        self.points = points
+        self.score = score
 
 class Sokoban:
-    def __init__(self, s: SokobanPuzzle, floor = ".", wall = "█", crate = "○", gcrate = "●", player = "&", goal = "X", gplayer = "&") -> None:
+    def __init__(self, p: Puzzle, floor = ".", wall = "█", crate = "○", gcrate = "●", player = "&", goal = "X", gplayer = "&") -> None:
         self.floor = floor
         self.wall = wall
         self.crate = crate
@@ -23,7 +26,8 @@ class Sokoban:
             9.5: self.player_on_goal
         }
 
-        self.grid = s.grid
+        self.grid = deepcopy(p.grid)
+
 
         players = 0
         for y, row in enumerate(self.grid):
@@ -236,71 +240,55 @@ class Sokoban:
         
         for row in self.grid:
             for cell in row:
-                if cell == 9:
+                if cell == 9 or cell == 9.5:
                     return 0
         
         return 2147483647
 
-SOKOBAN_GAMES = [
-    SokobanPuzzle(
-    [
-        [9, 0, 0, 0],
-        [0, 0, 0, 0],
-        [9, 2, 4, 0],
-        [0, 0, 2, 0],
-        [0, 0, 0, 0],
-    ], 100),
-
+SOKOBAN_GAMES = (
+    Puzzle(
+        [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 4, 0],
+            [0, 0, 0, 0],
+            [9, 2, 0, 0],
+        ], 100),
     
-    SokobanPuzzle([
-        [1, 1, 0, 0, 0, 1],
-        [9, 4, 2, 0, 0, 1],
-        [1, 1, 0, 2, 9, 1],
-        [9, 1, 1, 2, 0, 1],
-        [0, 1, 0, 9, 0, 1],
-        [2, 0, 3, 2, 2, 9],
-        [0, 0, 0, 9, 0, 0],
-    ], 2500),
-]
+    Puzzle(
+        [
+            [0, 9, 0, 0],
+            [0, 9, 0, 0],
+            [0, 2, 4, 0],
+            [0, 2, 0, 0],
+            [0, 0, 0, 0],
+        ], 200),
+    
+    Puzzle(
+        [
+            [0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 1, 1, 0, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 2, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 9, 9, 1],
+            [1, 0, 2, 0, 0, 2, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 9, 9, 1],
+            [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 9, 9, 1],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        ], 3000),
 
-_SOKOBAN_GAMES = iter(SOKOBAN_GAMES)
-
-"""
-self.icons = {
-            0: self.floor,
-            1: self.wall,
-            2: self.crate,
-            3: self.ccrate,
-            4: self.player,
-            9: self.goal,
-            9.5: self.player_on_goal
-        }
-"""
-
-"""
-def game_via_terminal(s):
-    s = Sokoban(s)
-
-    valid_moves = {
-        "w": "UP",
-        "a": "LEFT",
-        "s": "DOWN",
-        "d": "RIGHT"
-    }
-
-    while True:
-        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-        s.print_board()
-        user_input = input(">>> ").lower()
-        move = valid_moves.get(user_input, "")
-        if not move:
-            continue
-        if s.move(move) == 2147483647:
-            print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-            s.print_board()
-            print("GG you won\nType \"again\" to do another game, type anything else to exit")
-            if input(">>> ").lower() == "again":
-                game_via_terminal(next(_SOKOBAN_GAMES))
-            else:
-                exit()
-"""
+    Puzzle(
+        [
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 1, 1],
+            [1, 9, 4, 2, 0, 0, 1, 1],
+            [1, 1, 1, 0, 2, 9, 1, 1],
+            [1, 9, 1, 1, 2, 0, 1, 1],
+            [1, 0, 1, 0, 9, 0, 1, 1],
+            [1, 2, 0, 3, 2, 2, 9, 1],
+            [1, 0, 0, 0, 9, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+        ], 1200),
+)

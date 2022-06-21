@@ -22,13 +22,14 @@ import asyncio
 from src.brainfuck import BrainfuckInterpreter
 from src.police import police as _police
 from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
-from src.consts import LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
+from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING, substring
 from src.philosophy import Wikicrawler
 from src.wikicrawler import Crawler
 from src.names import get_name
 from src.translate import translate
 from src.hangman import Hangman, WORD_CHOICES, FIGURES
+from src.sokoban import Sokoban, SOKOBAN_GAMES
 from src.dox import Doxxer
 
 primary_prefix = "!"
@@ -458,7 +459,10 @@ async def _game(ctx):
     target_substring = substring(random.choice(LWORDS), random.choice([2,3]))
     await ctx.send(f"Please send a word containing \"{target_substring}\"!")
     while True:
-        new_word = await bot.wait_for("message", check=check)
+        try:
+            new_word = await bot.wait_for("message", check=check, timeout=20)
+        except asyncio.TimeoutError:
+            await ctx.reply("You took too long, bye!")
         if new_word.content.lower() == "`stop":
             await new_word.add_reaction(CHECK_MARK_EMOJI)
             break
@@ -489,7 +493,10 @@ async def _hangman(ctx, *_category):
         embed.description = f"```Category: {category}\nWord: {' '.join(h.configuration)}\nWrong guesses: {', '.join(h.wrong_guesses)}```"
         embed.title = f"Hangman (Lives left: {6-h.life})"
         await ctx.send(content=f"{ctx.author.mention}", embed=embed)
-        msg = await bot.wait_for("message", check=check)
+        try:
+            msg = await bot.wait_for("message", check=check, timeout=10)
+        except asyncio.TimeoutError:
+            await ctx.reply("You took too long, bye!")
         if (msg.content.upper() == msg.content) and (msg.content.upper() == 'EXIT'):
             await ctx.send(f"{ctx.author.mention} you ran away from the game, thinking you will finally wake up from the nightmare. But in reality, you are ever closer to the all-consuming void. This time, you have escaped your fate by sacrificing hangman, by killing him to spare yourself. Be sure that the gods are aware of your cowardliness and treachery, and will make your life even more difficult before your very being gets consumed by the beast. Now you will never find out what the correct word was.")
             break
@@ -951,6 +958,62 @@ async def _search(ctx, *url):
             await ctx.reply(f"{formatted[:500]}\n\n")
     except discord.errors.HTTPException:
         await ctx.reply("you are such a bozo, the link you sent was invalid")
+
+@bot.command(name = "sokoban", aliases = ["soko", "blockpush"])
+@nobl()
+async def _sokoban(ctx):
+    s = Sokoban(
+        random.choice(SOKOBAN_GAMES),
+        floor = ":black_large_square:",
+        wall = ":red_square:",
+        crate = ":brown_square:",
+        gcrate = ":orange_square:",
+        player = ":smiley_cat:",
+        goal = ":ballot_box_with_check:",
+        gplayer = ":smiley_cat:",
+    )
+
+    valid_moves = {
+        "⬆️": "UP",
+        "⬇️": "DOWN",
+        "⬅️": "LEFT",
+        "➡️": "RIGHT",
+    }
+    
+    embed = discord.Embed(title="Sokoban (pc is reocmmended)", description="\n".join([''.join([s.icons[x] for x in a]) for a in s.grid]))
+    embed.set_footer(text="If the bot is not responding, it's probably being rate limited. Just wait a sec, don't spam reactions")
+    msg = await ctx.reply(embed=embed)
+    await msg.add_reaction(ARROW_UP)
+    await msg.add_reaction(ARROW_DOWN)
+    await msg.add_reaction(ARROW_LEFT)
+    await msg.add_reaction(ARROW_RIGHT)
+    await msg.add_reaction(CROSS_MARK_EMOJI)
+
+    def check(reaction, user):
+        return (user == ctx.author) and (reaction.message == msg)
+
+    while True:
+        try:
+            reaction = await bot.wait_for('reaction_add', timeout=20, check=check)
+        except asyncio.TimeoutError:
+            await ctx.reply("You took too long, bye!")
+            await msg.clear_reactions()
+        if reaction[0].emoji == "\N{CROSS MARK}":
+            await msg.clear_reactions()
+            break
+        else:
+            if s.move(valid_moves[reaction[0].emoji]) == 2147483647:
+                rows = "\n".join([''.join([s.icons[x] for x in a]) for a in s.grid])
+                embed.description = rows
+                await msg.edit(embed = embed)
+                await msg.clear_reactions()
+                await ctx.reply("Congrats you solved it")
+                break
+
+        await msg.remove_reaction(reaction[0], reaction[1])
+        rows = "\n".join([''.join([s.icons[x] for x in a]) for a in s.grid])
+        embed.description = rows
+        await msg.edit(embed = embed)
 
 if __name__ == "__main__":
     token = open("token.txt","r").read()
