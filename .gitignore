@@ -4,7 +4,9 @@ report_logs.txt
 msg_count.txt
 .DS_Store
 data.pkl
+data.json
 src/data.pkl
+src/data.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
