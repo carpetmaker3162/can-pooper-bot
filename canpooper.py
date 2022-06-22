@@ -31,6 +31,7 @@ from src.translate import translate
 from src.hangman import Hangman, WORD_CHOICES, FIGURES
 from src.sokoban import Sokoban, SOKOBAN_GAMES
 from src.dox import Doxxer
+from src.data import update_data, load_data, add_score, remove_score
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -42,7 +43,9 @@ blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], 
 police, animation = False, False
 t = 0
 val = 0
+user_data = load_data("src/data.json")
 
+ALL_COMMANDS = [str(x) for x in bot.commands]
 
 def product(s):
     res = 1
@@ -568,7 +571,7 @@ async def help(ctx):
 @bot.command(name = "commands")
 @nobl()
 async def _commands(ctx):
-    await ctx.reply(f"```py\n{[str(x) for x in bot.commands]} ```")
+    await ctx.reply(f"```py\n{ALL_COMMANDS} ```")
 
 @bot.command()
 @dev()
@@ -767,18 +770,24 @@ async def school(ctx):
 
 @bot.event
 async def on_message(message):
-    if message.author.id == 963533621812158474:
-        #await message.reply("take this ratio")
-        pass
-
+    """
     print(f'---New Message---\nContent: "{message.content}"\nUser: {message.author}\nChannel: ',end='')
     try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
     except: print("possibly a dm\n")
+    """
 
-    
     if message.author.bot:
         return
     
+    if message.content.removeprefix(primary_prefix).strip().lower().split()[0] in [str(cmnd) for cmnd in bot.commands]:
+        if str(message.author.id) not in user_data.keys():
+            print(user_data)
+            user_data[str(message.author.id)] = {
+                "id": message.author.id,
+                "score": 0,
+            }
+            update_data(user_data, "src/data.json")
+
     if message.channel.id in tracking_channels:
         with open("msg_count.txt", "a") as file:
             file.write("\n")
@@ -965,11 +974,11 @@ async def _sokoban(ctx):
     s = Sokoban(
         random.choice(SOKOBAN_GAMES),
         floor = ":black_large_square:",
-        wall = ":red_square:",
-        crate = ":brown_square:",
-        gcrate = ":orange_square:",
+        wall = ":blue_square:",
+        crate = "<:nc:988933443306008636>",
+        gcrate = "<:gc:988933466156568647>",
         player = ":smiley_cat:",
-        goal = ":ballot_box_with_check:",
+        goal = ":x:",
         gplayer = ":smiley_cat:",
     )
 
