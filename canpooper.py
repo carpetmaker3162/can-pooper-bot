@@ -31,7 +31,7 @@ from src.translate import translate
 from src.hangman import Hangman, WORD_CHOICES, FIGURES
 from src.sokoban import Sokoban, SOKOBAN_GAMES
 from src.dox import Doxxer
-from src.data import update_data, load_data, add_score, remove_score
+from src.data import update_data, load_data
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -43,7 +43,7 @@ blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], 
 police, animation = False, False
 t = 0
 val = 0
-user_data = load_data("src/data.json")
+user_data = load_data()
 
 ALL_COMMANDS = [str(x) for x in bot.commands]
 
@@ -466,6 +466,7 @@ async def _game(ctx):
             new_word = await bot.wait_for("message", check=check, timeout=20)
         except asyncio.TimeoutError:
             await ctx.reply("You took too long, bye!")
+            break
         if new_word.content.lower() == "`stop":
             await new_word.add_reaction(CHECK_MARK_EMOJI)
             break
@@ -475,7 +476,10 @@ async def _game(ctx):
             await new_word.reply("dont be lazy choose a different word")
             continue
         if target_substring in new_word.content.lower():
-            await new_word.reply("Good job")
+            score = 2.7 ** len(new_word.content.lower()) * 17
+            await new_word.reply(f"Good job (you have been awarded with {math.ceil(score)} social credits)")
+            user_data[str(ctx.author.id)]["score"] += math.ceil(score)
+            update_data(user_data)
             break
 
 @bot.command(name = "hangman")
@@ -500,6 +504,7 @@ async def _hangman(ctx, *_category):
             msg = await bot.wait_for("message", check=check, timeout=10)
         except asyncio.TimeoutError:
             await ctx.reply("You took too long, bye!")
+            break
         if (msg.content.upper() == msg.content) and (msg.content.upper() == 'EXIT'):
             await ctx.send(f"{ctx.author.mention} you ran away from the game, thinking you will finally wake up from the nightmare. But in reality, you are ever closer to the all-consuming void. This time, you have escaped your fate by sacrificing hangman, by killing him to spare yourself. Be sure that the gods are aware of your cowardliness and treachery, and will make your life even more difficult before your very being gets consumed by the beast. Now you will never find out what the correct word was.")
             break
@@ -678,7 +683,8 @@ async def lol(ctx, *, code):
         "dox": dox_command,
         "ghostping": _ghost_ping,
         "sys": sys,
-        "snipelist": snipelist_
+        "snipelist": snipelist_,
+        "user_data": user_data,
     }
     
     buffer = io.StringIO()
@@ -786,7 +792,7 @@ async def on_message(message):
                 "id": message.author.id,
                 "score": 0,
             }
-            update_data(user_data, "src/data.json")
+            update_data(user_data)
 
     if message.channel.id in tracking_channels:
         with open("msg_count.txt", "a") as file:
@@ -968,11 +974,20 @@ async def _search(ctx, *url):
     except discord.errors.HTTPException:
         await ctx.reply("you are such a bozo, the link you sent was invalid")
 
+@bot.command(name = "score", aliases = ["bal", "balance"])
+@nobl()
+async def _score(ctx, user: discord.User = None):
+    if not user:
+        user = ctx.author
+    await asyncio.sleep(0.1)
+    await ctx.reply(f"Your social credit score: {load_data()[str(user.id)]['score']}")
+
 @bot.command(name = "sokoban", aliases = ["soko", "blockpush"])
 @nobl()
 async def _sokoban(ctx):
+    game = random.choice(SOKOBAN_GAMES)
     s = Sokoban(
-        random.choice(SOKOBAN_GAMES),
+        game,
         floor = ":black_large_square:",
         wall = ":blue_square:",
         crate = "<:nc:988933443306008636>",
@@ -981,6 +996,8 @@ async def _sokoban(ctx):
         goal = ":x:",
         gplayer = ":smiley_cat:",
     )
+
+    score = game.score
 
     valid_moves = {
         "⬆️": "UP",
@@ -1007,6 +1024,7 @@ async def _sokoban(ctx):
         except asyncio.TimeoutError:
             await ctx.reply("You took too long, bye!")
             await msg.clear_reactions()
+            break
         if reaction[0].emoji == "\N{CROSS MARK}":
             await msg.clear_reactions()
             break
@@ -1016,7 +1034,9 @@ async def _sokoban(ctx):
                 embed.description = rows
                 await msg.edit(embed = embed)
                 await msg.clear_reactions()
-                await ctx.reply("Congrats you solved it")
+                await ctx.reply(f"Congrats you solved it (you have been awarded with {score} social credits)")
+                user_data[str(ctx.author.id)]["score"] += score
+                update_data(user_data)
                 break
 
         await msg.remove_reaction(reaction[0], reaction[1])
