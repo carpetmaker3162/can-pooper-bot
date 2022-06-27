@@ -576,7 +576,7 @@ async def help(ctx):
 @bot.command(name = "commands")
 @nobl()
 async def _commands(ctx):
-    await ctx.reply(f"```py\n{ALL_COMMANDS} ```")
+    await ctx.reply(f"```py\n{[str(x) for x in bot.commands]} ```")
 
 @bot.command()
 @dev()
