@@ -374,12 +374,6 @@ async def snipelist(ctx):
             embed.set_footer(text='Snipelist can store at most 5 messages')
     await ctx.send(embed=embed)
 
-@bot.command(name="re")
-@nobl()
-async def _re(ctx, *s):
-    s = ' '.join(s)
-    await ctx.send(''.join(list(filter(lambda a: a != ":", list(demojize(s))))))
-
 @bot.command()
 @nobl()
 async def brainfuck(ctx, *code):
