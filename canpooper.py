@@ -762,18 +762,6 @@ async def send_news(ctx: commands.Context, channel: int):
         await channel.send(paragraph + "\n​")
         await asyncio.sleep(1)
 
-@bot.command(name="school", aliases=["schoolend","whendoesschoolend","endofschool"])
-async def school(ctx):
-    current_time = math.floor(time.time())
-    school_end_unix = 1656442200
-    seconds = school_end_unix - current_time
-    minutes = math.floor(seconds / 60)
-    hours = math.floor(minutes / 60)
-    days = math.ceil(hours / 24)
-    embed = discord.Embed(title="Time until end of school", description=f"Days: {days}\nHours: {hours}\nMinutes: {minutes}\nSeconds: {seconds}\n\nSchool ends <t:{school_end_unix}>")
-    embed.set_thumbnail(url="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/twitter/141/alarm-clock_23f0.png")
-    await ctx.send(embed=embed)
-
 @bot.event
 async def on_message(message):
     """
