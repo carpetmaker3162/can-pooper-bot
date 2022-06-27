@@ -13,10 +13,8 @@ from string import ascii_uppercase, ascii_lowercase, digits
 import re
 from itertools import combinations, cycle
 from contextlib import redirect_stdout
-from googletrans import Translator
 from textwrap import indent
 from traceback import format_exception
-from emoji import demojize
 import asyncio
 
 from src.brainfuck import BrainfuckInterpreter
@@ -91,9 +89,10 @@ def dev():
 
 def staff():
     staffs = [672892838995820553, # me
-    650439182204010496, # yue
-    690265771955585029, # jay
-    816692546272100442, # deshpande
+    650439182204010496, # hello
+    690265771955585029, # jayd
+    816692546272100442, # catvader
+    628672513345454122, # fhd
     ]
     def am(ctx):
         return (ctx.message.author.id in staffs)
@@ -671,7 +670,6 @@ async def lol(ctx, *, code):
         "math": math,
         "random": random,
         "time": time,
-        "neng": 'cool',
         "exempted": exempted,
         "guild": ctx.guild,
         "dox": dox_command,
@@ -713,7 +711,6 @@ async def e(ctx, *expression):
         "math": math,
         "random": random,
         "time": time,
-        "neng": 'cool',
         "exempted": exempted,
         "guild": ctx.guild,
         "sys": sys,

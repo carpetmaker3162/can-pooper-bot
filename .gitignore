@@ -7,7 +7,6 @@ data.pkl
 data.json
 src/data.pkl
 src/data.json
-canpooper.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
