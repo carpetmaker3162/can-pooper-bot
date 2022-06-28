@@ -7,6 +7,7 @@ data.pkl
 data.json
 src/data.pkl
 src/data.json
+tracking_channels.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
