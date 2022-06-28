@@ -756,7 +756,7 @@ async def send_news(ctx: commands.Context, channel: int):
 @bot.event
 async def on_message(message):
 
-    print(f'---New Message---\nContent: "{message.content}"\nUser: {message.author}\nChannel: ',end='')
+    print(f'--------\n{message.author}: {message.content}\nChannel: ', end='')
     try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
     except: print("possibly a dm\n")
 
