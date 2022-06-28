@@ -755,11 +755,11 @@ async def send_news(ctx: commands.Context, channel: int):
 
 @bot.event
 async def on_message(message):
-    """
+
     print(f'---New Message---\nContent: "{message.content}"\nUser: {message.author}\nChannel: ',end='')
     try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
     except: print("possibly a dm\n")
-    """
+
 
     if message.author.bot:
         return
@@ -863,12 +863,12 @@ async def nitro(ctx, user: discord.User = None):
         await ctx.reply("Check your DMs for free nitro!")
         await user.send(f"https://discord.gift/{code}")
         await asyncio.sleep(1)
-        await user.send("Nitro sent to you by: yourself\n||Note: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link||")
+        await user.send("Nitro sent to you by: yourself\nNote: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link")
     else:
         await ctx.message.add_reaction(CHECK_MARK_EMOJI)
         await user.send(f"https://discord.gift/{code}")
         await asyncio.sleep(1)
-        await user.send(f"Nitro sent to you by: {ctx.author}\n||Note: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link||")
+        await user.send(f"Nitro sent to you by: {ctx.author}\nNote: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link")
 
 @bot.command(name = "ghostping", aliases = ["ghost_ping"])
 @nobl()
