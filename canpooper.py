@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord.ext import tasks
 
 import io
 import os
@@ -20,8 +21,6 @@ import asyncio
 from src.brainfuck import BrainfuckInterpreter
 from src.police import police as _police
 from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
-from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
-    HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING, substring
 from src.philosophy import Wikicrawler
 from src.wikicrawler import Crawler
 from src.names import get_name
@@ -30,6 +29,10 @@ from src.hangman import Hangman, WORD_CHOICES, FIGURES
 from src.sokoban import Sokoban, SOKOBAN_GAMES
 from src.dox import Doxxer
 from src.data import update_data, load_data
+
+from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
+    HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING
+from src.methods import substring, product, merge, shipValue, round_to_5
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -44,32 +47,6 @@ val = 0
 user_data = load_data()
 
 ALL_COMMANDS = [str(x) for x in bot.commands]
-
-def product(s):
-    res = 1
-    for i in s:
-        res *= i
-    return res
-
-def merge(a, b):
-    a_slug_len = math.floor(len(a)/2)+1 if len(a) == 1 else math.floor(len(a)/2)
-    b_slug_len = math.floor(len(b)/2)
-    return a[:a_slug_len] + b[b_slug_len:]
-
-def shipValue(a, b): 
-    """return abs(math.ceil(100 * math.sin(product([ord(x) for x in a]) * product([ord(x) for x in b]))))"""
-    
-    """random.seed(product([ord(x) for x in a]) * product([ord(x) for x in b]))
-    x = math.ceil(random.random()*100)
-    random.seed(None)
-    return x"""
-
-    proda = product([ord(x) for x in a])
-    prodb = product([ord(x) for x in b])
-    return abs(math.ceil(100 * math.sin(proda * prodb)))
-
-def round_to_5(s):
-    return round(s/5) * 5
 
 def nobl():
     def am(ctx):
@@ -644,7 +621,7 @@ async def echo(ctx, *msg):
 async def on_ready():
     global t, police
     police = False
-    
+
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you"))
     print('[' + str(time.strftime("%H:%M:%S", time.localtime())) + "] can pooper is now running")
     
@@ -656,6 +633,8 @@ async def on_ready():
     #_guild = bot.get_guild(966819556016418856) # start tracking g9ds channels
     #for idx in _guild.text_channels:
     #    tracking_channels.append(idx.id)
+
+    await check_for_dead_channel()
 
 @bot.command(name="eval", aliases=["exec", "lol"])
 @owner()
@@ -753,9 +732,43 @@ async def send_news(ctx: commands.Context, channel: int):
         await channel.send(paragraph + "\n​")
         await asyncio.sleep(1)
 
+# @tasks.loop(seconds=10)
+async def check_for_dead_channel():
+    while True:
+        for id in open("tracking_channels.txt", "r").read().split("\n"):
+            if not id.strip():
+                continue
+            channel = await bot.fetch_channel(int(id))
+            last_msg = [ch async for ch in channel.history(limit=1)]
+            if not last_msg:
+                await channel.send("first")
+            
+            elif last_msg[0].author.id == 895318267151929405 and last_msg[0].content.startswith("dead chat X"):
+                break
+
+            if (datetime.now().replace(tzinfo=None) - last_msg[0].created_at.replace(tzinfo=None)).seconds >= 10:
+                await channel.send(f"dead chat X{'D' * random.randrange(0,10)}")
+        await asyncio.sleep(10)
+
+@bot.command(name = "track", aliases = ["deadchattrack", "deadchat"])
+@dev()
+async def _track(ctx, channel: discord.TextChannel = None):
+    try:
+        with open("tracking_channels.txt", "a") as file:
+            file.write("\n")
+            if not channel:
+                ch = ctx.channel.id
+            else:
+                ch = channel.id
+            file.write(str(ch))
+            file.close()
+        await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+    except:
+        await ctx.message.add_reaction(CROSS_MARK_EMOJI)
+
+
 @bot.event
 async def on_message(message):
-
     print(f'--------\n{message.author}: {message.content}\nChannel: ', end='')
     try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
     except: print("possibly a dm\n")

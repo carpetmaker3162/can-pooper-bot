@@ -145,7 +145,3 @@ STREET_TYPES = [
 
 for i in range(25):
     LAST_NAMES.append(random.choice(LWORDS).title())
-
-def substring(string, length):
-    idx = random.randrange(0, len(string) - length + 1)
-    return string[idx:idx + length]
