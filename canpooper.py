@@ -356,7 +356,7 @@ async def snipelist(ctx):
 async def brainfuck(ctx, *code):
     code = ''.join(code)
     t = time.time()
-    output = BrainfuckInterpreter(code, verbose=False).output
+    output = BrainfuckInterpreter(code).output
     embed = discord.Embed(title="")
     embed.add_field(name="Input", value=f"```{code}```", inline=False)
     embed.add_field(name="Output", value=f"```{output}```", inline=False)
