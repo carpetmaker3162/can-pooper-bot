@@ -1,16 +1,25 @@
+# if you try to run an instance of my bot, a lot of things will break
+# since many features are dependant on files stored locally on my
+# computer
+
+
+# behold, all my imports :dyinginside:
+# discord.py. Special thanks to its creators, hope they add support for buttons soon
 import discord
 from discord.ext import commands
 from discord.ext import tasks
 
-import io
+# standard stuff
 import os
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, date
 import math
 import random
 from string import ascii_uppercase, ascii_lowercase, digits
 
+# other random stuff
+import io
 import re
 from itertools import combinations, cycle
 from contextlib import redirect_stdout
@@ -18,6 +27,7 @@ from textwrap import indent
 from traceback import format_exception
 import asyncio
 
+# stuff i wrote myself that i just put in other files
 from src.brainfuck import BrainfuckInterpreter
 from src.police import police as _police
 from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
@@ -30,29 +40,36 @@ from src.sokoban import Sokoban, SOKOBAN_GAMES
 from src.dox import Doxxer
 from src.data import update_data, load_data
 
+# h
 from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
     HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING
 from src.methods import substring, product, merge, shipValue, round_to_5
 
+# setup
 primary_prefix = "!"
 bot = commands.Bot(
     command_prefix = [primary_prefix, "lol "],
     intents = discord.Intents(guilds=True, members=True, bans=True, emojis=True, voice_states=True, messages=True, reactions=True), 
     allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True),
     help_command=None)
+
+# dont mind these extra globals im trying to get rid of them too
 blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], [], [], [], [], [], []
 police, animation = False, False
 t = 0
 val = 0
 user_data = load_data()
 
-ALL_COMMANDS = [str(x) for x in bot.commands]
 
+# blacklist filter, probably will remove since blacklist system is never used anyway
 def nobl():
     def am(ctx):
         return (ctx.message.author.id not in blList)
     return commands.check(am)
 
+# these 3 are permissions decorators
+# for example, if you see @staff() in front of a command, it means only staff can run
+# yeah i know imagine having """staff""" for such a shitty bot so cringe ong
 def owner():
     def am(ctx):
         return ctx.message.author.id == 672892838995820553
@@ -75,7 +92,8 @@ def staff():
         return (ctx.message.author.id in staffs)
     return commands.check(am)
 
-
+# message event handler. Here is also where I store edited messages (ikr so bad)
+# Maybe ill move this and all the other globals into a cache file or something idk
 @bot.event
 async def on_message_edit(before,after):
     global edit_
@@ -284,23 +302,6 @@ async def ship(ctx, *people):
     embed.add_field(name=f":twisted_rightwards_arrows: `{merge(a, b)}`", value=f"**{val}%** {bar} {msg}")
     await ctx.send(content=f":two_hearts: `{a}`\n:two_hearts: `{b}`", embed=embed)
 
-@bot.command(name = "delete", aliases = ["!"])
-@dev()
-async def _delete(ctx, count: int = 1, user: discord.Member = None):
-    if user:
-        await ctx.message.delete()
-        deleted = 0
-        for i in await ctx.channel.history().flatten():
-            if i.author == user:
-                await i.delete()
-                deleted += 1
-            if deleted == count:
-                return
-        return
-
-    for i in await ctx.channel.history(limit=count + 1).flatten():
-        await i.delete()
-
 @bot.command(name = "sniper", aliases = ["snipe"])
 @nobl()
 async def sniper(ctx):
@@ -376,29 +377,15 @@ async def exempt(ctx, *user: discord.Member):
         exempted.append(u.id)
         await ctx.send(f"{u} is now exempted from police")
 
-@bot.command(name="animation")
-@dev()
-async def _animation(ctx):
-    global animation
-    animation = (False if animation else True)
-    frames = ["8D", "8=D", "8==D", "8===D", "8==D", "8=D"]
-    _bot = ctx.guild.get_member(bot.user.id)
-    for i in cycle(frames):
-        if animation:
-            await _bot.edit(nick=i)
-            await asyncio.sleep(2)
-        else:
-            break
-
 @bot.command()
-@dev()
+@staff()
 async def nickname(ctx, *args):
     await ctx.guild.get_member(bot.user.id).edit(nick=' '.join(args))
     await ctx.message.add_reaction(CHECK_MARK_EMOJI)
 
 @bot.command()
 @staff()
-async def bl(ctx, user : discord.Member):
+async def bl(ctx, user: discord.Member):
     global blList
     if user in blList:
         blList.remove(user.id)
@@ -490,12 +477,13 @@ async def _hangman(ctx, *_category):
                 await ctx.send(f"{ctx.author.mention} HANGMAN DIED RIP (the word was: {h.target})")
                 return
 
+# for maz
 @bot.command(name = "countries", aliases = ["country", "countryguess"])
 @nobl()
 async def _countries(ctx):
     await _hangman(ctx, "countries")
 
-
+# RATIO COMMAND!!!!
 @bot.command(name = "ratio")
 @nobl()
 async def _ratio(ctx, user: discord.Member):
@@ -508,6 +496,7 @@ async def _ratio(ctx, user: discord.Member):
             return
     await ctx.message.add_reaction(CROSS_MARK_EMOJI)
 
+# very useful command
 @bot.command()
 @nobl()
 async def whoasked(ctx):
@@ -526,6 +515,7 @@ async def whoasked(ctx):
     else:
         await msg.edit(content=f'Found! **{random.choice(ctx.guild.members)}** asked.')
 
+# outdated and im too lazy to update
 @bot.command(name="help", aliases=["Help"])
 @nobl()
 async def help(ctx):
@@ -554,9 +544,9 @@ async def restart(ctx):
     await ctx.message.add_reaction(HOURGLASS_EMOJI)
     os.execl(sys.executable, sys.executable, *sys.argv)
 
-@bot.command()
+@bot.command(name = "time", aliases = ["unix"])
 @nobl()
-async def unix(ctx):
+async def _time(ctx):
     await ctx.reply(math.floor(time.time()))
 
 @bot.command()
@@ -566,7 +556,7 @@ async def ping(ctx):
 
 @bot.command(name="death", aliases = ["deathdate","whenwillidie","dead"])
 @nobl()
-async def _death(ctx, *person : discord.Member):
+async def _death(ctx, *person: discord.Member):
     if not person:
         person = ctx.author
         other = False
@@ -623,18 +613,20 @@ async def on_ready():
     police = False
 
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you"))
-    print('[' + str(time.strftime("%H:%M:%S", time.localtime())) + "] can pooper is now running")
+    print('[' + str(time.strftime("%H:%M:%S", time.localtime())) + "] bot is now running")
     
     t = math.floor(time.time()) # record time at which bot started running
     
-    #channel = bot.get_channel(967137143208161301) # automatically join vc
-    #await channel.connect()
+    channel = bot.get_channel(967896902823718932) # automatically join vc
+    await channel.connect()
+    
+    """
+    _guild = bot.get_guild(966819556016418856) # start tracking channels
+    for idx in _guild.text_channels:
+        tracking_channels.append(idx.id)
+    """
 
-    #_guild = bot.get_guild(966819556016418856) # start tracking g9ds channels
-    #for idx in _guild.text_channels:
-    #    tracking_channels.append(idx.id)
-
-    await check_for_dead_channel()
+    # await check_for_dead_channel()
 
 @bot.command(name="eval", aliases=["exec", "lol"])
 @owner()
@@ -717,12 +709,9 @@ async def _police(ctx):
     await ctx.send(f"police mode is now `{police}`")
 
 @bot.command()
+@dev()
 async def send_news(ctx: commands.Context, channel: int):
     channel = bot.get_channel(channel)
-    # Check if the person is permitted to publish news articles
-    if not ctx.author.id in [650439182204010496, 672892838995820553]:
-        await ctx.reply("ur not permitted to publish articles bozo :joy_cat: :joy_cat: :joy_cat:")
-        return
     
     news_file = open("news.txt")
     news_message = news_file.read()
@@ -732,6 +721,7 @@ async def send_news(ctx: commands.Context, channel: int):
         await channel.send(paragraph + "\n​")
         await asyncio.sleep(1)
 
+"""
 # @tasks.loop(seconds=10)
 async def check_for_dead_channel():
     while True:
@@ -749,7 +739,9 @@ async def check_for_dead_channel():
             if (datetime.now().replace(tzinfo=None) - last_msg[0].created_at.replace(tzinfo=None)).seconds >= 10:
                 await channel.send(f"dead chat X{'D' * random.randrange(0,10)}")
         await asyncio.sleep(10)
+"""
 
+"""
 @bot.command(name = "track", aliases = ["deadchattrack", "deadchat"])
 @dev()
 async def _track(ctx, channel: discord.TextChannel = None):
@@ -765,8 +757,9 @@ async def _track(ctx, channel: discord.TextChannel = None):
         await ctx.message.add_reaction(CHECK_MARK_EMOJI)
     except:
         await ctx.message.add_reaction(CROSS_MARK_EMOJI)
+"""
 
-
+# handler for when a message is sent
 @bot.event
 async def on_message(message):
     print(f'--------\n{message.author}: {message.content}\nChannel: ', end='')
