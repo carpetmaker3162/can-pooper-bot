@@ -547,7 +547,7 @@ async def restart(ctx):
 @bot.command(name = "time", aliases = ["unix"])
 @nobl()
 async def _time(ctx):
-    await ctx.reply(math.floor(time.time()))
+    await ctx.reply(f"{date.today().strftime('%B %d, %Y')}\nTimestamp: {math.floor(time.time())}\nWarning: This time is based on the system time of the person who is running the bot. If he/she is in another timezone, or has experienced time dilation by going near a black hole or by travelling at near-light speed, this time may be inaccurate for you.")
 
 @bot.command()
 @nobl()
