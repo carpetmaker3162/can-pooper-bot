@@ -152,33 +152,6 @@ with open("config.yaml", encoding="UTF-8") as file:
     CONFIG_YAML = yaml.safe_load(file)
 
 class ParseYAML(type):
-    """
-    Implements a custom metaclass used for accessing
-    configuration data by simply accessing class attributes.
-    Supports getting configuration from up to two levels
-    of nested configuration through `section` and `subsection`.
-    `section` specifies the YAML configuration section (or "key")
-    in which the configuration lives, and must be set.
-    `subsection` is an optional attribute specifying the section
-    within the section from which configuration should be loaded.
-    Example Usage:
-        # config.yml
-        bot:
-            prefixes:
-                direct_message: ''
-                guild: '!'
-        # config.py
-        class Prefixes(metaclass=YAMLGetter):
-            section = "bot"
-            subsection = "prefixes"
-        # Usage in Python code
-        from config import Prefixes
-        def get_prefix(bot, message):
-            if isinstance(message.channel, PrivateChannel):
-                return Prefixes.direct_message
-            return Prefixes.guild
-    """
-
     subsection = None
 
     def __getattr__(self, name):
@@ -200,7 +173,6 @@ class ParseYAML(type):
         return self.__getattr__(name)
 
     def __iter__(self):
-        """Return generator of key: value pairs of current constants class' config values."""
         for name in self.__annotations__:
             yield name, getattr(self, name)
 
