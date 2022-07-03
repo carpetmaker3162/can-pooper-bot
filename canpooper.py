@@ -41,9 +41,9 @@ from src.dox import Doxxer
 from src.data import update_data, load_data
 
 # h
-# from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
-#    HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING
-from src.consts import Users, Groups, Emojis, StEndings, StTypes
+# from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, Emojis.check_mark, Emojis.cross_mark, \
+#    Emojis.hourglass, Emojis.thumbs_up, CLOWN_EMOJI, WARNING
+from src.consts import Users, Groups, Emojis, StEndings, StTypes, LWORDS
 from src.methods import substring, product, merge, shipValue, round_to_5
 
 # setup
@@ -154,9 +154,9 @@ async def penis(ctx, *user):
 async def dm(ctx, user: discord.User, *message):
     try:
         await user.send(' '.join(message))
-        await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+        await ctx.message.add_reaction(Emojis.check_mark)
     except:
-        await ctx.message.add_reaction(CROSS_MARK_EMOJI)
+        await ctx.message.add_reaction(Emojis.cross_mark)
 
 @bot.command()
 @staff()
@@ -382,7 +382,7 @@ async def exempt(ctx, *user: discord.Member):
 @staff()
 async def nickname(ctx, *args):
     await ctx.guild.get_member(bot.user.id).edit(nick=' '.join(args))
-    await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+    await ctx.message.add_reaction(Emojis.check_mark)
 
 @bot.command()
 @staff()
@@ -426,7 +426,7 @@ async def _game(ctx):
             await ctx.reply("You took too long, bye!")
             break
         if new_word.content.lower() == "`stop":
-            await new_word.add_reaction(CHECK_MARK_EMOJI)
+            await new_word.add_reaction(Emojis.check_mark)
             break
         if new_word.content.lower() not in LWORDS:
             continue
@@ -492,10 +492,10 @@ async def _ratio(ctx, user: discord.Member):
     for msg in msgs:
         if msg.author.id == user.id:
             reply = await msg.reply(random.choice(["ratio", "ratio bozo", "take this ratio"]))
-            await msg.add_reaction(THUMBS_UP_EMOJI)
-            await reply.add_reaction(THUMBS_UP_EMOJI)
+            await msg.add_reaction(Emojis.thumbs_up)
+            await reply.add_reaction(Emojis.thumbs_up)
             return
-    await ctx.message.add_reaction(CROSS_MARK_EMOJI)
+    await ctx.message.add_reaction(Emojis.cross_mark)
 
 # very useful command
 @bot.command()
@@ -542,7 +542,7 @@ async def _commands(ctx):
 @bot.command()
 @dev()
 async def restart(ctx):
-    await ctx.message.add_reaction(HOURGLASS_EMOJI)
+    await ctx.message.add_reaction(Emojis.hourglass)
     os.execl(sys.executable, sys.executable, *sys.argv)
 
 @bot.command(name = "time", aliases = ["unix"])
@@ -594,9 +594,9 @@ async def say(ctx, channelid, *msg):
         channel_ = bot.get_channel(int(channelid))
         await channel_.send(' '.join(msg))
         print(f'Message \'{msg}\' sent. ')
-        await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+        await ctx.message.add_reaction(Emojis.check_mark)
     except:
-        await ctx.message.add_reaction(CROSS_MARK_EMOJI)
+        await ctx.message.add_reaction(Emojis.cross_mark)
 
 @bot.command()
 @nobl()
@@ -659,7 +659,7 @@ async def lol(ctx, *, code):
             func = await _globals["func"]()
             result = f"{buffer.getvalue()}\n-- {func}\n"
             try:
-                await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+                await ctx.message.add_reaction(Emojis.check_mark)
             except discord.errors.NotFound:
                 pass
     except Exception as e:
@@ -755,9 +755,9 @@ async def _track(ctx, channel: discord.TextChannel = None):
                 ch = channel.id
             file.write(str(ch))
             file.close()
-        await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+        await ctx.message.add_reaction(Emojis.check_mark)
     except:
-        await ctx.message.add_reaction(CROSS_MARK_EMOJI)
+        await ctx.message.add_reaction(Emojis.cross_mark)
 """
 
 # handler for when a message is sent
@@ -797,23 +797,23 @@ async def on_message(message):
     
     if "ratio" in message.content.lower():
         if message.reference is not None:
-            await message.add_reaction(THUMBS_UP_EMOJI)
+            await message.add_reaction(Emojis.thumbs_up)
             original_msg = await message.channel.fetch_message(message.reference.message_id)
-            await original_msg.add_reaction(THUMBS_UP_EMOJI)
+            await original_msg.add_reaction(Emojis.thumbs_up)
     
     if random.random() < val:
         responses = ["ratio", "take this ratio", "ratio bozo"]
         ratio = await message.reply(random.choice(responses))
-        await ratio.add_reaction(THUMBS_UP_EMOJI)
+        await ratio.add_reaction(Emojis.thumbs_up)
         original_msg = await message.channel.fetch_message(ratio.reference.message_id)
-        await original_msg.add_reaction(THUMBS_UP_EMOJI)
+        await original_msg.add_reaction(Emojis.thumbs_up)
 
 @bot.command(name = "val")
 @dev()
 async def _val(ctx, value: float):
     global val
     val = value
-    await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+    await ctx.message.add_reaction(Emojis.check_mark)
 
 @bot.command(name = "dox", aliases = ["doxx"])
 async def dox_command(ctx, user: discord.User):
@@ -872,7 +872,7 @@ async def nitro(ctx, user: discord.User = None):
         await asyncio.sleep(1)
         await user.send("Nitro sent to you by: yourself\nNote: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link")
     else:
-        await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+        await ctx.message.add_reaction(Emojis.check_mark)
         await user.send(f"https://discord.gift/{code}")
         await asyncio.sleep(1)
         await user.send(f"Nitro sent to you by: {ctx.author}\nNote: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link")
@@ -891,17 +891,17 @@ async def _ghost_ping(ctx, user: discord.User):
 @dev()
 async def name(ctx):
     if not ctx.guild.me.guild_permissions.manage_nicknames:
-        await ctx.message.add_reaction(CROSS_MARK_EMOJI)
+        await ctx.message.add_reaction(Emojis.cross_mark)
         return
-    await ctx.message.add_reaction(HOURGLASS_EMOJI)
+    await ctx.message.add_reaction(Emojis.hourglass)
     for member in ctx.guild.members:
         try:
             await member.edit(nick = get_name())
         except discord.errors.Forbidden:
-            await ctx.message.add_reaction(WARNING)
+            await ctx.message.add_reaction(Emojis.warning)
         except discord.errors.HTTPException:
             pass
-    await ctx.message.add_reaction(CHECK_MARK_EMOJI)
+    await ctx.message.add_reaction(Emojis.check_mark)
     await asyncio.sleep(1)
     await ctx.message.clear_reactions()
 
@@ -913,7 +913,7 @@ async def _crawl(ctx, *url):
     else:
         url = " ".join(url)
 
-    await ctx.message.add_reaction(HOURGLASS_EMOJI)
+    await ctx.message.add_reaction(Emojis.hourglass)
 
     w = Wikicrawler(url)
 
@@ -995,11 +995,11 @@ async def _sokoban(ctx):
     embed = discord.Embed(title="Sokoban (pc is reocmmended)", description="\n".join([''.join([s.icons[x] for x in a]) for a in s.grid]))
     embed.set_footer(text="If the bot is not responding, it's probably being rate limited. Just wait a sec, don't spam reactions")
     msg = await ctx.reply(embed=embed)
-    await msg.add_reaction(ARROW_UP)
-    await msg.add_reaction(ARROW_DOWN)
-    await msg.add_reaction(ARROW_LEFT)
-    await msg.add_reaction(ARROW_RIGHT)
-    await msg.add_reaction(CROSS_MARK_EMOJI)
+    await msg.add_reaction(Emojis.arrow_up)
+    await msg.add_reaction(Emojis.arrow_down)
+    await msg.add_reaction(Emojis.arrow_left)
+    await msg.add_reaction(Emojis.arrow_right)
+    await msg.add_reaction(Emojis.cross_mark)
 
     def check(reaction, user):
         return (user == ctx.author) and (reaction.message == msg)

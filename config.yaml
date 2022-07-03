@@ -17,20 +17,20 @@ users:
       - 650439182204010496
       - 690265771955585029
       - 816692546272100442
-      - 628672513345454122d
+      - 628672513345454122
 emojis:
   check_mark: "\N{WHITE HEAVY CHECK MARK}"
   warning: "\N{WARNING SIGN}"
   cross_mark: "\N{CROSS MARK}"
-  hourglass: "\N{HOURGLASS}"
+  hourglass: '\N{HOURGLASS}'
   
   thumbs_up: "\N{THUMBS UP SIGN}"
   clown: "\N{CLOWN FACE}"
   
-  arrow_right: "\N{BLACK RIGHTWARDS ARROW}"
-  arrow_left: "\N{BLACK LEFTWARDS ARROW}"
-  arrow_up: "\N{BLACK UPWARDS ARROW}"
-  arrow_down: "\N{BLACK DOWNWARDS ARROW}"
+  arrow_right: "➡️"
+  arrow_left: "⬅️"
+  arrow_up: "⬆️"
+  arrow_down: "⬇️"
 
   vomiting_face: "\N{FACE WITH OPEN MOUTH VOMITING}"
   flushed: "\N{FLUSHED FACE}"
