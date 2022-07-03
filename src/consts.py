@@ -1,5 +1,6 @@
 from string import ascii_lowercase, ascii_uppercase, digits
 import random
+import yaml
 
 LWORDS = tuple(open("src/words.txt", "r").read().split("\n"))
 CHECK_MARK_EMOJI = "\N{WHITE HEAVY CHECK MARK}"
@@ -12,6 +13,7 @@ ARROW_RIGHT = "➡️"
 ARROW_LEFT = "⬅️"
 ARROW_UP = "⬆️"
 ARROW_DOWN = "⬇️"
+
 
 FIRST_NAMES = [
     "Jason",
@@ -75,7 +77,7 @@ FIRST_NAMES = [
     "Muhammad",
     "Jack",
     "Jackson",
-    "COVID"
+    "COVID",
 ]
 
 LAST_NAMES = FIRST_NAMES + [
@@ -145,3 +147,80 @@ STREET_TYPES = [
 
 for i in range(25):
     LAST_NAMES.append(random.choice(LWORDS).title())
+
+with open("config.yaml", encoding="UTF-8") as file:
+    CONFIG_YAML = yaml.safe_load(file)
+
+class ParseYAML(type):
+    """
+    Implements a custom metaclass used for accessing
+    configuration data by simply accessing class attributes.
+    Supports getting configuration from up to two levels
+    of nested configuration through `section` and `subsection`.
+    `section` specifies the YAML configuration section (or "key")
+    in which the configuration lives, and must be set.
+    `subsection` is an optional attribute specifying the section
+    within the section from which configuration should be loaded.
+    Example Usage:
+        # config.yml
+        bot:
+            prefixes:
+                direct_message: ''
+                guild: '!'
+        # config.py
+        class Prefixes(metaclass=YAMLGetter):
+            section = "bot"
+            subsection = "prefixes"
+        # Usage in Python code
+        from config import Prefixes
+        def get_prefix(bot, message):
+            if isinstance(message.channel, PrivateChannel):
+                return Prefixes.direct_message
+            return Prefixes.guild
+    """
+
+    subsection = None
+
+    def __getattr__(self, name):
+        name = name.lower()
+
+        try:
+            if self.subsection is not None:
+                return CONFIG_YAML[self.section][self.subsection][name]
+            return CONFIG_YAML[self.section][name]
+        except KeyError as e:
+            dotted_path = '.'.join(
+                (self.section, self.subsection, name)
+                if self.subsection is not None else (self.section, name)
+            )
+            print(f"\"{dotted_path}\" doesnt exist in that yaml section/subsection idiot")
+            raise AttributeError(repr(name)) from e
+
+    def __getitem__(self, name):
+        return self.__getattr__(name)
+
+    def __iter__(self):
+        """Return generator of key: value pairs of current constants class' config values."""
+        for name in self.__annotations__:
+            yield name, getattr(self, name)
+
+class Users(metaclass=ParseYAML):
+    section = "users"
+
+class Groups(metaclass=ParseYAML):
+    section = "users"
+    subsection = "groups"
+
+class Emojis(metaclass=ParseYAML):
+    section = "emojis"
+
+class StEndings(metaclass=ParseYAML):
+    section = "names"
+    subsection = "street_name_endings"
+
+class StTypes(metaclass=ParseYAML):
+    section = "names"
+    subsection = "street_types"
+
+if __name__ == "__main__":
+    print(Users.penis)

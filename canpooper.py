@@ -41,8 +41,9 @@ from src.dox import Doxxer
 from src.data import update_data, load_data
 
 # h
-from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
-    HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING
+# from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, CHECK_MARK_EMOJI, CROSS_MARK_EMOJI, \
+#    HOURGLASS_EMOJI, THUMBS_UP_EMOJI, CLOWN_EMOJI, WARNING
+from src.consts import Users, Groups, Emojis, StEndings, StTypes
 from src.methods import substring, product, merge, shipValue, round_to_5
 
 # setup

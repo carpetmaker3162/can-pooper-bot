@@ -1,0 +1,165 @@
+users:
+  progamrer: 672892838995820553
+  hello: 650439182204010496
+  jayd: 690265771955585029
+  catvader: 816692546272100442
+  fhd: 628672513345454122
+  fhdbot: 963533621812158474
+  
+  groups:
+    owner:
+      - 672892838995820553
+    dev:
+      - 650439182204010496
+      - 672892838995820553
+    staff:
+      - 672892838995820553
+      - 650439182204010496
+      - 690265771955585029
+      - 816692546272100442
+      - 628672513345454122d
+emojis:
+  check_mark: "\N{WHITE HEAVY CHECK MARK}"
+  warning: "\N{WARNING SIGN}"
+  cross_mark: "\N{CROSS MARK}"
+  hourglass: "\N{HOURGLASS}"
+  
+  thumbs_up: "\N{THUMBS UP SIGN}"
+  clown: "\N{CLOWN FACE}"
+  
+  arrow_right: "\N{BLACK RIGHTWARDS ARROW}"
+  arrow_left: "\N{BLACK LEFTWARDS ARROW}"
+  arrow_up: "\N{BLACK UPWARDS ARROW}"
+  arrow_down: "\N{BLACK DOWNWARDS ARROW}"
+
+  vomiting_face: "\N{FACE WITH OPEN MOUTH VOMITING}"
+  flushed: "\N{FLUSHED FACE}"
+  neutral: "\N{NEUTRAL FACE}"
+  raised_eyebrow: "\N{FACE WITH ONE EYEBROW RAISED}"
+  blush: "\N{SMILING FACE WITH SMILING EYES}"
+  heart_eyes: "\N{SMILING FACE WITH HEART-SHAPED EYES}"
+  heart_sparkle: "\N{SPARKLING HEART}"
+  sparkle: "\N{SPARKLES}"
+  twisted_arrows: "\N{TWISTED RIGHTWARDS ARROWS}"
+
+  bar_full: "<:f:971070032241127536>"
+  bar_half: "<:h:971070061139877939>"
+  bar_empty: "<:e:971070086360215572>"
+names:
+  first:
+    - Jason
+    - Kyle
+    - Joseph
+    - Neng
+    - Da
+    - Jay
+    - Shiva
+    - Osama
+    - Saddam
+    - Hussein
+    - Adolph
+    - Joey
+    - Nicholas
+    - Alex
+    - Dmitri
+    - Vladimir
+    - Zedong
+    - Jihad
+    - Bob
+    - James
+    - Carl
+    - Raku
+    - Canpooper
+    - Shuva
+    - Stalin
+    - Kim Jong
+    - Vladimir
+    - Volodymyr
+    - Bin Laden
+    - Obama
+    - Joe
+    - Kimberly
+    - Thomas
+    - Johannes
+    - Galileo
+    - Luke
+    - Yan
+    - Washington
+    - George
+    - Ryan
+    - Don
+    - Donald
+    - Riley
+    - Google
+    - Mia
+    - Tony
+    - Anthony
+    - Aly
+    - Alyson
+    - Steven
+    - Stephen
+    - Benito
+    - Tim
+    - Jimmy
+    - Nguyen
+    - Abraham
+    - Jesus
+    - Mohammed
+    - Muhammad
+    - Jack
+    - Jackson
+    - COVID
+  last:
+    - Hitler
+    - Mao
+    - Kim
+    - Hawking
+    - Mardikar
+    - Ghizali
+    - Paolini
+    - Massaquoi
+    - Li
+    - Zhao
+    - Ping
+    - Timers
+    - Wood
+    - Lester
+    - Pablo
+    - Putin
+    - Lenin
+    - Stalin
+    - Mussolini
+    - Mardikar
+    - Sedjiu
+    - Mackenzie
+    - II of Poopland
+    - I of Poopland
+    - III of Poopland
+    - IV of Poopland
+    - V of Poopland
+    - + ratio
+    - ":joy_cat: :joy_cat: :joy_cat:"
+  street_name_endings:
+    - dale
+    - glen
+    - pass
+    - brooke
+    - pooper
+    - raku
+    - ""
+    - ""
+    - ""
+  street_types:
+    - Avenue
+    - Street
+    - Road
+    - Drive
+    - Pass
+    - Plaza
+    - Court
+    - Circle
+    - Boulevard
+    - Freeway
+    - Highway
+    - Way
+    - Pooper
