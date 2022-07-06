@@ -41,8 +41,6 @@ from src.dox import Doxxer
 from src.data import update_data, load_data
 
 # h
-# from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, Emojis.check_mark, Emojis.cross_mark, \
-#    Emojis.hourglass, Emojis.thumbs_up, CLOWN_EMOJI, WARNING
 from src.consts import Users, Groups, Emojis, StEndings, StTypes, LWORDS
 from src.methods import substring, product, merge, shipValue, round_to_5, mockstring
 
@@ -282,17 +280,17 @@ async def ship(ctx, *people):
     elif val == 69:
         msg = f":flushed:"
     elif val in range(11,31):
-        msg = f"Meh :neutral_face:"
+        msg = f"Meh {Emojis.neutral}"
     elif val in range(31,51):
-        msg = f"Almost good :face_with_raised_eyebrow:"
+        msg = f"Almost good {Emojis.raised_eyebrow}"
     elif val in range(51,71):
-        msg = f"Pretty good :blush:"
+        msg = f"Pretty good {Emojis.blush}"
     elif val in range(71,91):
-        msg = f"Great :heart_eyes:"
+        msg = f"Great {Emojis.heart_eyes}"
     elif val in range(91, 100):
-        msg = f"Almost perfect :sparkling_heart:"
+        msg = f"Almost perfect {Emojis.heart_sparkle}"
     elif val == 100:
-        msg = f"PERFECT :sparkles:"
+        msg = f"PERFECT {Emojis.sparkle}"
     fullc = math.floor(round_to_5(val) / 10)
     emptc = 10 - fullc
     full = "<:f:971070032241127536>"
@@ -307,8 +305,8 @@ async def ship(ctx, *people):
     for i in range(emptc):
         bar += empty
     embed = discord.Embed(title="")
-    embed.add_field(name=f":twisted_rightwards_arrows: `{merge(a, b)}`", value=f"**{val}%** {bar} {msg}")
-    await ctx.send(content=f":two_hearts: `{a}`\n:two_hearts: `{b}`", embed=embed)
+    embed.add_field(name=f"{Emojis.twisted_arrows} `{merge(a, b)}`", value=f"**{val}%** {bar} {msg}")
+    await ctx.send(content=f"{Emojis.two_hearts} `{a}`\n{Emojis.two_hearts} `{b}`", embed=embed)
 
 @bot.command(name = "sniper", aliases = ["snipe"])
 @nobl()
