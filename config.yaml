@@ -21,7 +21,7 @@ users:
 emojis:
   check_mark: ✅
   warning: ⚠️
-  cross_mark: '\\N{CROSS MARK}'
+  cross_mark: ❌
   hourglass: ⌛
 
   thumbs_up: '👍'
