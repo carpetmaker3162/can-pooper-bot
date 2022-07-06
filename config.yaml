@@ -19,32 +19,30 @@ users:
       - 816692546272100442
       - 628672513345454122
 emojis:
-  check_mark: "\N{WHITE HEAVY CHECK MARK}"
-  warning: "\N{WARNING SIGN}"
-  cross_mark: "\N{CROSS MARK}"
-  hourglass: '\N{HOURGLASS}'
-  
-  thumbs_up: "\N{THUMBS UP SIGN}"
-  clown: "\N{CLOWN FACE}"
-  
-  arrow_right: "➡️"
-  arrow_left: "⬅️"
-  arrow_up: "⬆️"
-  arrow_down: "⬇️"
+  check_mark: ✅
+  warning: ⚠️
+  cross_mark: '\\N{CROSS MARK}'
+  hourglass: ⌛
 
-  vomiting_face: "\N{FACE WITH OPEN MOUTH VOMITING}"
-  flushed: "\N{FLUSHED FACE}"
-  neutral: "\N{NEUTRAL FACE}"
-  raised_eyebrow: "\N{FACE WITH ONE EYEBROW RAISED}"
-  blush: "\N{SMILING FACE WITH SMILING EYES}"
-  heart_eyes: "\N{SMILING FACE WITH HEART-SHAPED EYES}"
-  heart_sparkle: "\N{SPARKLING HEART}"
-  sparkle: "\N{SPARKLES}"
-  twisted_arrows: "\N{TWISTED RIGHTWARDS ARROWS}"
+  thumbs_up: '👍'
+  clown: 🤡
 
-  bar_full: "<:f:971070032241127536>"
-  bar_half: "<:h:971070061139877939>"
-  bar_empty: "<:e:971070086360215572>"
+  arrow_right: '➡️'
+  arrow_left: '⬅️'
+  arrow_up: '⬆️'
+  arrow_down: '⬇️'
+  vomiting_face: 🤮
+  flushed: 😳
+  neutral: 😐
+  raised_eyebrow: 🤨
+  blush: 😊
+  heart_eyes: 😍
+  heart_sparkle: 💖
+  sparkle: ✨
+  twisted_arrows: 🔀
+  bar_full: '<:f:971070032241127536>'
+  bar_half: '<:h:971070061139877939>'
+  bar_empty: '<:e:971070086360215572>'
 names:
   first:
     - Jason
