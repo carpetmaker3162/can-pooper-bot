@@ -44,7 +44,7 @@ from src.data import update_data, load_data
 # from src.consts import ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP, LWORDS, Emojis.check_mark, Emojis.cross_mark, \
 #    Emojis.hourglass, Emojis.thumbs_up, CLOWN_EMOJI, WARNING
 from src.consts import Users, Groups, Emojis, StEndings, StTypes, LWORDS
-from src.methods import substring, product, merge, shipValue, round_to_5
+from src.methods import substring, product, merge, shipValue, round_to_5, mockstring
 
 # setup
 primary_prefix = "!"
@@ -72,25 +72,32 @@ def nobl():
 # for example, if you see @staff() in front of a command, it means only staff can run
 # yeah i know imagine having """staff""" for such a shitty bot so cringe ong
 def owner():
+    group = (
+        Users.progamrer,
+    )
     def am(ctx):
-        return ctx.message.author.id == 672892838995820553
+        return ctx.message.author.id in group
     return commands.check(am)
 
 def dev():
-    poopers = [650439182204010496, 672892838995820553]
+    group = (
+        Users.progamrer,
+        Users.hello,
+    )
     def am(ctx):
-        return ctx.author.id in poopers
+        return ctx.message.author.id in group
     return commands.check(am)
 
 def staff():
-    staffs = [672892838995820553, # me
-    650439182204010496, # hello
-    690265771955585029, # jayd
-    816692546272100442, # catvader
-    628672513345454122, # fhd
-    ]
+    group = (
+        Users.progamrer,
+        Users.hello,
+        Users.jayd,
+        Users.catvader,
+        Users.fhd,
+    )
     def am(ctx):
-        return (ctx.message.author.id in staffs)
+        return ctx.message.author.id in group
     return commands.check(am)
 
 # message event handler. Here is also where I store edited messages (ikr so bad)
@@ -619,13 +626,14 @@ async def on_ready():
     t = math.floor(time.time()) # record time at which bot started running
     
     channel = bot.get_channel(967896902823718932) # automatically join vc
-    await channel.connect()
+    _channel = await channel.connect()
     
     """
     _guild = bot.get_guild(966819556016418856) # start tracking channels
     for idx in _guild.text_channels:
         tracking_channels.append(idx.id)
     """
+    _channel.play(discord.FFmpegPCMAudio('./res/rick_roll.mp3'))
 
     # await check_for_dead_channel()
 
@@ -671,7 +679,7 @@ async def lol(ctx, *, code):
         await ctx.send(embed=embed)
 
 @bot.command()
-@owner()
+@dev()
 async def e(ctx, *expression):
     _globals = {
         "discord": discord,
@@ -876,6 +884,11 @@ async def nitro(ctx, user: discord.User = None):
         await user.send(f"https://discord.gift/{code}")
         await asyncio.sleep(1)
         await user.send(f"Nitro sent to you by: {ctx.author}\nNote: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link")
+
+@bot.command(name = "mock")
+@nobl()
+async def _mock(ctx, *args):
+    await ctx.reply(mockstring(' '.join(args)))
 
 @bot.command(name = "ghostping", aliases = ["ghost_ping"])
 @nobl()

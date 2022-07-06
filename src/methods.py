@@ -30,3 +30,28 @@ def shipValue(a, b):
 
 def round_to_5(s):
     return round(s/5) * 5
+
+def mockstring(s):
+    s = list(s.lower())
+    i = 0
+    for idx, char in enumerate(s):
+        if char == " ":
+            continue
+        elif char == "l":
+            s[idx] = s[idx].upper()
+            i = 0
+            continue
+        elif char == "i":
+            s[idx] = s[idx].lower()
+            i = 1
+            continue
+        elif i == 1:
+            s[idx] = s[idx].upper()
+            i = 0
+            continue
+        else:
+            i = 1
+    return ''.join(s)
+
+if __name__ == "__main__":
+    print(mockstring("im a bozo im really a bozo"))
