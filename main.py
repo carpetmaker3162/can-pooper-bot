@@ -39,6 +39,7 @@ from src.hangman import Hangman, WORD_CHOICES, FIGURES
 from src.sokoban import Sokoban, SOKOBAN_GAMES
 from src.dox import Doxxer
 from src.data import update_data, load_data
+from src.prompt import get_response
 
 # h
 from src.consts import Users, Groups, Emojis, StEndings, StTypes, LWORDS
@@ -48,7 +49,7 @@ from src.methods import substring, product, merge, shipValue, round_to_5, mockst
 primary_prefix = "!"
 bot = commands.Bot(
     command_prefix = [primary_prefix, "lol "],
-    intents = discord.Intents(guilds=True, members=True, bans=True, emojis=True, voice_states=True, messages=True, reactions=True), 
+    intents = discord.Intents.all(),
     allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True),
     help_command=None)
 
@@ -57,7 +58,6 @@ blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], 
 police, animation = False, False
 t = 0
 val = 0
-user_data = load_data()
 
 
 # blacklist filter, probably will remove since blacklist system is never used anyway
@@ -68,7 +68,6 @@ def nobl():
 
 # these 3 are permissions decorators
 # for example, if you see @staff() in front of a command, it means only staff can run
-# yeah i know imagine having """staff""" for such a shitty bot so cringe ong
 def owner():
     group = (
         Users.progamrer,
@@ -98,10 +97,21 @@ def staff():
         return ctx.message.author.id in group
     return commands.check(am)
 
+@bot.command(name="prompt")
+@nobl()
+async def _prompt(ctx, *args):
+    msg = "Respond to the following message as the communist evil confident: " + " ".join(args)
+    async with ctx.typing():
+        response = get_response(msg)
+    await ctx.reply(response.lower())
+
 # message event handler. Here is also where I store edited messages (ikr so bad)
 # Maybe ill move this and all the other globals into a cache file or something idk
 @bot.event
 async def on_message_edit(before,after):
+    if "indeed" in after.content or "interesting" in after.content:
+        print("d")
+        await after.channel.send("Indeed.")
     global edit_
     match len(edit_):
         case 0:
@@ -155,7 +165,8 @@ async def penis(ctx, *user):
     await ctx.send(embed=embed)
     
 @bot.command()
-@dev()
+@staff()
+@nobl()
 async def dm(ctx, user: discord.User, *message):
     try:
         await user.send(' '.join(message))
@@ -439,9 +450,10 @@ async def _game(ctx):
             await new_word.reply("dont be lazy choose a different word")
             continue
         if target_substring in new_word.content.lower():
-            score = 2.7 ** len(new_word.content.lower()) * 17
+            score = 1.9 ** len(new_word.content) * 9 * len(target_substring)
             await new_word.reply(f"Good job (you have been awarded with {math.ceil(score)} social credits)")
-            user_data[str(ctx.author.id)]["score"] += math.ceil(score)
+            user_data = load_data()
+            user_data[str(new_word.author.id)]["score"] += math.ceil(score)
             update_data(user_data)
             break
 
@@ -464,7 +476,7 @@ async def _hangman(ctx, *_category):
         embed.title = f"Hangman (Lives left: {6-h.life})"
         await ctx.send(content=f"{ctx.author.mention}", embed=embed)
         try:
-            msg = await bot.wait_for("message", check=check, timeout=10)
+            msg = await bot.wait_for("message", check=check, timeout=20)
         except asyncio.TimeoutError:
             await ctx.reply("You took too long, bye!")
             break
@@ -544,7 +556,7 @@ async def help(ctx):
 async def _commands(ctx):
     await ctx.reply(f"```py\n{[str(x) for x in bot.commands]} ```")
 
-@bot.command()
+@bot.command(name = "restart", aliases = ["r"])
 @dev()
 async def restart(ctx):
     await ctx.message.add_reaction(Emojis.hourglass)
@@ -571,7 +583,7 @@ async def _death(ctx, *person: discord.Member):
         other = True
     msg = await ctx.reply("Calculating...")
     current_time = math.floor(time.time())
-    random.seed(person.id / 18) # 13
+    random.seed(person.id / 7) # 13
     val = random.random()
     if val < 0.01:
         add_years = random.randrange(1200, 604800)
@@ -623,7 +635,7 @@ async def on_ready():
     
     t = math.floor(time.time()) # record time at which bot started running
     
-    channel = bot.get_channel(967896902823718932) # automatically join vc
+    channel = bot.get_channel(1118259599393443942) # automatically join vc
     _channel = await channel.connect()
     
     """
@@ -654,7 +666,8 @@ async def lol(ctx, *, code):
         "ghostping": _ghost_ping,
         "sys": sys,
         "snipelist": snipelist_,
-        "user_data": user_data,
+        "Emojis": Emojis,
+        "asyncio": asyncio,
     }
     
     buffer = io.StringIO()
@@ -677,7 +690,7 @@ async def lol(ctx, *, code):
         await ctx.send(embed=embed)
 
 @bot.command()
-@dev()
+@owner()
 async def e(ctx, *expression):
     _globals = {
         "discord": discord,
@@ -773,13 +786,20 @@ async def on_message(message):
     try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
     except: print("possibly a dm\n")
 
+    if message.author == bot.user:
+        return
+
+    # insert things that bot will respond to other bots with
+
+    if message.content == "Indeed.":
+        await message.channel.send("Indeed.")
 
     if message.author.bot:
         return
-    
+ 
     if message.content.removeprefix(primary_prefix).strip().lower().split()[0] in [str(cmnd) for cmnd in bot.commands]:
+        user_data = load_data()
         if str(message.author.id) not in user_data.keys():
-            print(user_data)
             user_data[str(message.author.id)] = {
                 "id": message.author.id,
                 "score": 0,
@@ -825,7 +845,7 @@ async def _val(ctx, value: float):
 async def dox_command(ctx, user: discord.User):
     msg: discord.Message = await ctx.send("Waiting...")
     await asyncio.sleep(2)
-    doxxer = Doxxer(user.id / 13)
+    doxxer = Doxxer(user.id / 3)
 
     # insert stuff here
 
@@ -838,7 +858,6 @@ async def dox_command(ctx, user: discord.User):
     embed.add_field(name = "GENDER", value = doxxer.gender, inline = False)
     embed.add_field(name = "ADDRESS", value = doxxer.address, inline = False)
     embed.add_field(name = "IP ADDRESS", value = doxxer.ip, inline = False)
-    embed.add_field(name = "DISCORD AUTH TOKEN", value = doxxer.token, inline = False)
 
     embed.set_footer(text = "for legal reasons this is a joke (but is it really?)")
 
@@ -977,7 +996,25 @@ async def _score(ctx, user: discord.User = None):
     if not user:
         user = ctx.author
     await asyncio.sleep(0.1)
-    await ctx.reply(f"Your social credit score: {load_data()[str(user.id)]['score']}")
+    score = "{:,.0f}".format(load_data()[str(user.id)]["score"])
+    await ctx.reply(f"Your social credit score: {score}")
+
+@bot.command(name = "leaderboard", aliases = ["lb", "top"])
+@nobl()
+async def _leaderboard(ctx, *args):
+    table = load_data()
+    scores = list(table.values())
+    scores.sort(key=lambda a: a["score"], reverse=True)
+    lb_string = ""
+    for i, row in enumerate(scores):
+        user = bot.get_user(int(row['id']))
+        if user is None:
+            continue
+        user = user.display_name
+        score = row["score"]
+        lb_string += f"{user}: {score:,.0f}\n"
+    embed = discord.Embed(title="Top users", description=lb_string.strip())
+    await ctx.reply(embed=embed)
 
 @bot.command(name = "sokoban", aliases = ["soko", "blockpush"])
 @nobl()
@@ -1032,11 +1069,15 @@ async def _sokoban(ctx):
                 await msg.edit(embed = embed)
                 await msg.clear_reactions()
                 await ctx.reply(f"Congrats you solved it (you have been awarded with {score} social credits)")
+                user_data = load_data()
                 user_data[str(ctx.author.id)]["score"] += score
                 update_data(user_data)
                 break
 
-        await msg.remove_reaction(reaction[0], reaction[1])
+        try:
+            await msg.remove_reaction(reaction[0], reaction[1])
+        except discord.errors.Forbidden:
+            pass
         rows = "\n".join([''.join([s.icons[x] for x in a]) for a in s.grid])
         embed.description = rows
         await msg.edit(embed = embed)

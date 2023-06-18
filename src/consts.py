@@ -3,17 +3,6 @@ import random
 import yaml
 
 LWORDS = tuple(open("src/words.txt", "r").read().split("\n"))
-CHECK_MARK_EMOJI = "\N{WHITE HEAVY CHECK MARK}"
-CROSS_MARK_EMOJI = "\N{CROSS MARK}"
-HOURGLASS_EMOJI = "\N{HOURGLASS}"
-THUMBS_UP_EMOJI = "\N{THUMBS UP SIGN}"
-CLOWN_EMOJI = "\N{CLOWN FACE}"
-WARNING = "\N{WARNING SIGN}"
-ARROW_RIGHT = "➡️"
-ARROW_LEFT = "⬅️"
-ARROW_UP = "⬆️"
-ARROW_DOWN = "⬇️"
-
 
 FIRST_NAMES = [
     "Jason",
@@ -193,6 +182,3 @@ class StEndings(metaclass=ParseYAML):
 class StTypes(metaclass=ParseYAML):
     section = "names"
     subsection = "street_types"
-
-if __name__ == "__main__":
-    print(Users.penis)

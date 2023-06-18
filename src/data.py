@@ -2,7 +2,7 @@ import json
 
 def update_data(data):
     with open("src/data.json", "w") as file:
-        json.dump(data, file)
+        file.write(json.dumps(data))
 
 def load_data():
     with open("src/data.json", "r") as file:

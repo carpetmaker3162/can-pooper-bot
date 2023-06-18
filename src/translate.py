@@ -4,7 +4,7 @@ from googletrans import Translator
 import time
 
 async def translate(ctx, args):
-    path = ["gu", "so", "ja", "xh", "ko", "mi", "en"]
+    path = ["gu", "so", "ja", "xh", "ko", "af", "az", "sw", "mi", "en"]
     arguments = list(args.split())
     if "path=" in arguments:
         new_arguments = arguments[:arguments.index("path=")]

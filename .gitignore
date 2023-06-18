@@ -1,5 +1,6 @@
 .vscode/settings.json
 token.txt
+token2.txt
 report_logs.txt
 msg_count.txt
 .DS_Store
