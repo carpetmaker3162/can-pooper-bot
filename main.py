@@ -1,7 +1,3 @@
-# if you try to run an instance of my bot, a lot of things will break
-# since many features are dependant on files stored locally on my
-# computer
-
 import discord
 from discord.ext import commands
 from discord.ext import tasks
@@ -37,13 +33,7 @@ bot = commands.Bot(
     allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True),
     help_command=None)
 
-blList = []
-
-# blacklist filter, probably will remove since blacklist system is never used anyway
-def nobl():
-    def am(ctx):
-        return (ctx.message.author.id not in blList)
-    return commands.check(am)
+PRINT_MESSAGES = False
 
 # these 3 are permissions decorators
 # for example, if you see @staff() in front of a command, it means only staff can run
@@ -77,7 +67,6 @@ def staff():
     return commands.check(am)
 
 @bot.command(name="prompt")
-@nobl()
 async def _prompt(ctx, *args):
     msg = "Respond to the following message as the communist evil confident: " + " ".join(args)
     async with ctx.typing():
@@ -118,29 +107,15 @@ async def dm(ctx, user: discord.User, *message):
 @bot.command()
 @staff()
 async def nickname(ctx, *args):
-    await ctx.guild.get_member(bot.user.id).edit(nick=' '.join(args))
+    nickname = " ".join(args)
+    await ctx.guild.get_member(bot.user.id).edit(nick=nickname)
     await ctx.message.add_reaction(Emojis.check_mark)
 
-@bot.command()
-@staff()
-async def bl(ctx, user: discord.Member):
-    global blList
-    if user in blList:
-        blList.remove(user.id)
-        removedtxt = '**' + str(user) + '** removed from blacklist.'
-        await ctx.reply(removedtxt)
-    elif user.id not in blList:
-        blList.append(user.id)
-        addedtxt = '**' + str(user) + '** added to blacklist.'
-        await ctx.reply(addedtxt)
-
 @bot.command(name="translate")
-@nobl()
 async def _translate(ctx, *args):
     await translate(ctx, " ".join(args))
 
 @bot.command(name = "game", aliases = ["wordgame", "guess"])
-@nobl()
 async def _game(ctx):
     def check(msg):
         return (msg.channel == ctx.channel) and (not msg.author.bot)
@@ -170,7 +145,6 @@ async def _game(ctx):
             break
 
 @bot.command(name = "hangman")
-@nobl()
 async def _hangman(ctx, *_category):
     if not _category:
         category = random.choice(list(WORD_CHOICES.keys()))
@@ -209,7 +183,6 @@ async def _hangman(ctx, *_category):
 
 # very useful command
 @bot.command()
-@nobl()
 async def whoasked(ctx):
     msg = await ctx.send('[▖] Looking for who asked...')
     await asyncio.sleep(0.2)
@@ -227,7 +200,6 @@ async def whoasked(ctx):
         await msg.edit(content=f'Found! **{random.choice(ctx.guild.members)}** asked.')
 
 @bot.command(name = "commands")
-@nobl()
 async def _commands(ctx):
     await ctx.reply(f"```py\n{[str(x) for x in bot.commands]} ```")
 
@@ -238,12 +210,10 @@ async def restart(ctx):
     os.execl(sys.executable, sys.executable, *sys.argv)
 
 @bot.command()
-@nobl()
 async def ping(ctx):
     await ctx.reply("Ping: `" + str(round(bot.latency * 1000)) + "` ms")
 
 @bot.command(name="death", aliases = ["deathdate","whenwillidie","dead"])
-@nobl()
 async def _death(ctx, *person: discord.Member):
     if not person:
         person = ctx.author
@@ -286,7 +256,6 @@ async def say(ctx, channelid, *msg):
         await ctx.message.add_reaction(Emojis.cross_mark)
 
 @bot.command()
-@nobl()
 async def echo(ctx, *msg):
     if ctx.author.id in [672892838995820553, 650439182204010496]:
         try: 
@@ -302,15 +271,7 @@ async def on_ready():
     
     channel = bot.get_channel(1118259599393443942) # automatically join vc
     _channel = await channel.connect()
-    
-    """
-    _guild = bot.get_guild(966819556016418856) # start tracking channels
-    for idx in _guild.text_channels:
-        tracking_channels.append(idx.id)
-    """
     _channel.play(discord.FFmpegPCMAudio('./res/rick_roll.mp3'))
-
-    # await check_for_dead_channel()
 
 @bot.command(name="eval", aliases=["exec", "lol"])
 @owner()
@@ -320,7 +281,6 @@ async def lol(ctx, *, code):
         "commands": commands,
         "bot": bot,
         "ctx": ctx,
-        "blList": blList,
         "owner": owner,
         "math": math,
         "random": random,
@@ -361,7 +321,6 @@ async def e(ctx, *expression):
         "commands": commands,
         "bot": bot,
         "ctx": ctx,
-        "blList": blList,
         "owner": owner,
         "math": math,
         "random": random,
@@ -385,20 +344,12 @@ async def e(ctx, *expression):
     embed.set_footer(text=f'evaluated in {math.floor((time.time() - tbegin) * 1000)} ms')
     await ctx.send(embed=embed)
 
-# handler for when a message is sent
 @bot.event
 async def on_message(message):
-    print(f'--------\n{message.author}: {message.content}\nChannel: ', end='')
-    try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
-    except: print("possibly a dm\n")
-
-    if message.author == bot.user:
-        return
-
-    # insert things that bot will respond to other bots with
-
-    if message.content == "Indeed.":
-        await message.channel.send("Indeed.")
+    if PRINT_MESSAGES:
+        print(f'--------\n{message.author}: {message.content}\nChannel: ', end='')
+        try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
+        except: print("possibly a dm\n")
 
     if message.author.bot:
         return
@@ -411,39 +362,14 @@ async def on_message(message):
                 "score": 0,
             }
             update_data(user_data)
-
-    if message.channel.id in tracking_channels:
-        with open("msg_count.txt", "a") as file:
-            file.write("\n")
-            file.write(str(message.channel.id))
-            file.close()
     
     await bot.process_commands(message)
-    
-    global police
-    if police or message.author.id in policing:
-        await _police(message, exempted)
-    
-    if "ratio" in message.content.lower():
-        if message.reference is not None:
-            await message.add_reaction(Emojis.thumbs_up)
-            original_msg = await message.channel.fetch_message(message.reference.message_id)
-            await original_msg.add_reaction(Emojis.thumbs_up)
-    
-    if random.random() < val:
-        responses = ["ratio", "take this ratio", "ratio bozo"]
-        ratio = await message.reply(random.choice(responses))
-        await ratio.add_reaction(Emojis.thumbs_up)
-        original_msg = await message.channel.fetch_message(ratio.reference.message_id)
-        await original_msg.add_reaction(Emojis.thumbs_up)
 
 @bot.command(name = "dox", aliases = ["doxx"])
 async def dox_command(ctx, user: discord.User):
     msg: discord.Message = await ctx.send("Waiting...")
     await asyncio.sleep(2)
     doxxer = Doxxer(user.id / 3)
-
-    # insert stuff here
 
     embed = discord.Embed(
         title = "Private Information Extractor v1.0.4",
@@ -460,7 +386,6 @@ async def dox_command(ctx, user: discord.User):
     await msg.edit(content="", embed=embed)
 
 @bot.command(name = "sokoban", aliases = ["soko", "blockpush"])
-@nobl()
 async def _sokoban(ctx):
     game = random.choice(SOKOBAN_GAMES)
     s = Sokoban(
@@ -526,5 +451,5 @@ async def _sokoban(ctx):
         await msg.edit(embed = embed)
 
 if __name__ == "__main__":
-    token = open("token.txt","r").read()
+    token = open("token.txt", "r").read()
     bot.run(token)
