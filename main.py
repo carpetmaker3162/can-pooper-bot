@@ -32,7 +32,7 @@ from src.methods import substring, product, round_to_5
 
 primary_prefix = "!"
 bot = commands.Bot(
-    command_prefix = [primary_prefix, "lol "],
+    command_prefix = [primary_prefix, "lol ", "Lol "],
     intents = discord.Intents.all(),
     allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True),
     help_command=None)
@@ -116,14 +116,11 @@ async def editsnipe(ctx):
             await ctx.send(embed=embed)
 
 @bot.command(aliases=["pp"])
-async def penis(ctx, *user):
+async def penis(ctx, user: discord.User = None):
     if not user:
         user = ctx.author
-        username = user.display_name
-    else:
-        if re.findall("<@(\d{18})>", user[0]):
-            user = bot.get_user(int(re.findall("<@(\d{18})>", user[0])[0]))
-            username = user.display_name
+    nickname = user.display_name
+
     try: 
         random.seed(user.id)
     except AttributeError:
