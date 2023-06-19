@@ -2,14 +2,10 @@
 # since many features are dependant on files stored locally on my
 # computer
 
-
-# behold, all my imports :dyinginside:
-# discord.py. Special thanks to its creators, hope they add support for buttons soon
 import discord
 from discord.ext import commands
 from discord.ext import tasks
 
-# standard stuff
 import os
 import sys
 import time
@@ -17,8 +13,6 @@ from datetime import datetime, date
 import math
 import random
 from string import ascii_uppercase, ascii_lowercase, digits
-
-# other random stuff
 import io
 import re
 from itertools import combinations, cycle
@@ -27,25 +21,15 @@ from textwrap import indent
 from traceback import format_exception
 import asyncio
 
-# stuff i wrote myself that i just put in other files
-from src.brainfuck import BrainfuckInterpreter
-from src.police import police as _police
-from src.conversion import to_usd, to_jayd, USD_TO_JAYD_CONVERSION_RATE
-from src.philosophy import Wikicrawler
-from src.wikicrawler import Crawler
-from src.names import get_name
 from src.translate import translate
 from src.hangman import Hangman, WORD_CHOICES, FIGURES
 from src.sokoban import Sokoban, SOKOBAN_GAMES
 from src.dox import Doxxer
 from src.data import update_data, load_data
 from src.prompt import get_response
-
-# h
 from src.consts import Users, Groups, Emojis, StEndings, StTypes, LWORDS
-from src.methods import substring, product, merge, shipValue, round_to_5, mockstring
+from src.methods import substring, product, round_to_5
 
-# setup
 primary_prefix = "!"
 bot = commands.Bot(
     command_prefix = [primary_prefix, "lol "],
@@ -53,12 +37,7 @@ bot = commands.Bot(
     allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True),
     help_command=None)
 
-# dont mind these extra globals im trying to get rid of them too
-blList, snipelist_, sniper_, edit_, policing, tracking_channels, exempted = [], [], [], [], [], [], []
-police, animation = False, False
-t = 0
-val = 0
-
+blList, snipelist_, sniper_, edit_ = [], [], [], []
 
 # blacklist filter, probably will remove since blacklist system is never used anyway
 def nobl():
@@ -109,9 +88,6 @@ async def _prompt(ctx, *args):
 # Maybe ill move this and all the other globals into a cache file or something idk
 @bot.event
 async def on_message_edit(before,after):
-    if "indeed" in after.content or "interesting" in after.content:
-        print("d")
-        await after.channel.send("Indeed.")
     global edit_
     match len(edit_):
         case 0:
@@ -174,83 +150,6 @@ async def dm(ctx, user: discord.User, *message):
     except:
         await ctx.message.add_reaction(Emojis.cross_mark)
 
-@bot.command()
-@staff()
-async def report(ctx):
-    msg = await ctx.send("Checking report logs...")
-    
-    with open("report_logs.txt", "r") as file:
-        reports = file.read().split("\n")
-        if reports:
-            last_report = reports[-1]
-        else:
-            last_report = None
-        file.close()
-
-    time_elapsed = (time.time() - int(last_report)) / 60
-
-    await msg.edit("Counting messages...")
-
-    with open("msg_count.txt", "r") as file:
-        data = {}
-        for i in tracking_channels:
-            data[str(i)] = 0
-        
-        for i in file.read().split("\n"):
-            if i:
-                data[i] += 1
-        file.close()
-    
-    await msg.edit("Organizing data...")
-    
-    stats = ""
-    total = 0
-    for channel, count in data.items():
-        if count:
-            stats += f"{bot.get_channel(int(channel))}: {count}\n"
-            total += count
-    
-    embed = discord.Embed(title="Activity Report")
-    embed.add_field(name="Stats",value=f"```{stats} ```", inline=False)
-    embed.add_field(name="Extra Info",value=f"Total messages sent (since last reset): {total}\nCurrent time: <t:{math.floor(time.time())}>\nLast resetted: <t:{last_report}> (<t:{last_report}:R>)\nMessage rate: {total / time_elapsed:.3f} messages/minute\nMinutes passed since last reset: {math.floor(time_elapsed)}", inline=False)
-    await msg.edit(embed=embed)
-
-@bot.command()
-@dev()
-async def reset(ctx):
-    msg = await ctx.send("Resetting message data...")
-    
-    f = open("msg_count.txt", "w")
-    f.close()
-
-    await msg.edit("Recording current reset time...")
-    
-    with open("report_logs.txt", "a") as file:
-        file.write("\n")
-        file.write(str(math.floor(time.time())))
-        file.close()
-    
-    with open("report_logs.txt", "r") as file:
-        times = file.read().split("\n")
-        file.close()
-        lasttime = times[-2]
-
-    await msg.edit(f"Resetted\nCurrent time: {datetime.today().strftime('%Y-%m-%d %H:%M:%S')}\nLast reset: {datetime.fromtimestamp(int(lasttime)).strftime('%Y-%m-%d %H:%M:%S')}")
-
-@bot.command()
-@dev()
-async def lastreset(ctx, *new):
-    with open("report_logs.txt", "r") as file:
-        times = file.read().split("\n")
-        file.close()
-    if not new:
-        await ctx.send(f"Last resetted: <t:{times[-1]}>")
-    else:
-        with open("report_logs.txt", "a") as file:
-            file.write("\n")
-            file.write(str(new[0]))
-        await ctx.send(f"Last reset time manually set to <t:{str(new[0])}>")
-
 @bot.event
 async def on_message_delete(msg):
     global snipelist_
@@ -261,63 +160,6 @@ async def on_message_delete(msg):
         sniper_.append([msg.content, msg.author.id, msg.channel.id])
     else:
         sniper_.append([msg.content, msg.author.id, msg.channel.id])
-
-@bot.command()
-@nobl()
-async def ship(ctx, *people):
-    h = True
-    try:
-        b = people[1]
-    except IndexError:
-        a = ctx.author.display_name
-        h = False
-        try:
-            b = people[0]
-        except IndexError:
-            a, b = random.sample(set([x.display_name for x in ctx.guild.members]), 2)
-            h = False
-    if h:
-        a = people[0]
-    if re.findall("<@(\d{18})>", a):
-        a = bot.get_user(int(re.findall("<@(\d{18})>", a)[0])).display_name
-    if re.findall("<@(\d{18})>", b):
-        b = bot.get_user(int(re.findall("<@(\d{18})>", b)[0])).display_name
-
-    val = shipValue(a, b)
-    if (a.lower() == "shiva" and b.lower() == "lal") or (b.lower() == "shiva" and a.lower() == "lal"):
-        val = 69
-    if val in range(0,11):
-        msg = f"Awful :face_vomiting:"
-    elif val == 69:
-        msg = f":flushed:"
-    elif val in range(11,31):
-        msg = f"Meh {Emojis.neutral}"
-    elif val in range(31,51):
-        msg = f"Almost good {Emojis.raised_eyebrow}"
-    elif val in range(51,71):
-        msg = f"Pretty good {Emojis.blush}"
-    elif val in range(71,91):
-        msg = f"Great {Emojis.heart_eyes}"
-    elif val in range(91, 100):
-        msg = f"Almost perfect {Emojis.heart_sparkle}"
-    elif val == 100:
-        msg = f"PERFECT {Emojis.sparkle}"
-    fullc = math.floor(round_to_5(val) / 10)
-    emptc = 10 - fullc
-    full = "<:f:971070032241127536>"
-    half = "<:h:971070061139877939>"
-    empty = "<:e:971070086360215572>"
-    bar = ""
-    for i in range(fullc):
-        bar += full
-    if str(round_to_5(val))[-1] == "5":
-        bar += half
-        emptc -= 1
-    for i in range(emptc):
-        bar += empty
-    embed = discord.Embed(title="")
-    embed.add_field(name=f"{Emojis.twisted_arrows} `{merge(a, b)}`", value=f"**{val}%** {bar} {msg}")
-    await ctx.send(content=f"{Emojis.two_hearts} `{a}`\n{Emojis.two_hearts} `{b}`", embed=embed)
 
 @bot.command(name = "sniper", aliases = ["snipe"])
 @nobl()
@@ -369,32 +211,6 @@ async def snipelist(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-@nobl()
-async def brainfuck(ctx, *code):
-    code = ''.join(code)
-    t = time.time()
-    output = BrainfuckInterpreter(code).output
-    embed = discord.Embed(title="")
-    embed.add_field(name="Input", value=f"```{code}```", inline=False)
-    embed.add_field(name="Output", value=f"```{output}```", inline=False)
-    embed.set_footer(text=f"done in {math.floor((time.time()-t)*1000)}ms")
-    await ctx.send(embed=embed)
-
-@bot.command()
-@staff()
-async def exempt(ctx, *user: discord.Member):
-    if not user:
-        user = (ctx.author,)
-
-    for u in user:
-        if u.id in exempted:
-            exempted.remove(u.id)
-            await ctx.send(f"{u} is no longer exempted from police")
-            return
-        exempted.append(u.id)
-        await ctx.send(f"{u} is now exempted from police")
-
-@bot.command()
 @staff()
 async def nickname(ctx, *args):
     await ctx.guild.get_member(bot.user.id).edit(nick=' '.join(args))
@@ -412,15 +228,6 @@ async def bl(ctx, user: discord.Member):
         blList.append(user.id)
         addedtxt = '**' + str(user) + '** added to blacklist.'
         await ctx.reply(addedtxt)
-
-@bot.command()
-@nobl()
-async def about(ctx):
-    color = discord.Colour.from_rgb(random.randrange(0,255), random.randrange(0,255), random.randrange(0,255))
-    embed=discord.Embed(title="About can pooper",url='https://www.google.com/', description="", color=color)
-    embed.add_field(name="Extra",value=f"There is literlaly b o info about this bot like idc kys bro\nBot has been running since <t:{t}:R>",inline=False)
-    embed.set_footer(text="a creative footer because im out of ideas")
-    await ctx.send(embed=embed)
 
 @bot.command(name="translate")
 @nobl()
@@ -495,25 +302,6 @@ async def _hangman(ctx, *_category):
                 await ctx.send(f"{ctx.author.mention} HANGMAN DIED RIP (the word was: {h.target})")
                 return
 
-# for maz
-@bot.command(name = "countries", aliases = ["country", "countryguess"])
-@nobl()
-async def _countries(ctx):
-    await _hangman(ctx, "countries")
-
-# RATIO COMMAND!!!!
-@bot.command(name = "ratio")
-@nobl()
-async def _ratio(ctx, user: discord.Member):
-    msgs = await ctx.channel.history(limit=20).flatten()
-    for msg in msgs:
-        if msg.author.id == user.id:
-            reply = await msg.reply(random.choice(["ratio", "ratio bozo", "take this ratio"]))
-            await msg.add_reaction(Emojis.thumbs_up)
-            await reply.add_reaction(Emojis.thumbs_up)
-            return
-    await ctx.message.add_reaction(Emojis.cross_mark)
-
 # very useful command
 @bot.command()
 @nobl()
@@ -533,24 +321,6 @@ async def whoasked(ctx):
     else:
         await msg.edit(content=f'Found! **{random.choice(ctx.guild.members)}** asked.')
 
-# outdated and im too lazy to update
-@bot.command(name="help", aliases=["Help"])
-@nobl()
-async def help(ctx):
-    color = discord.Colour.from_rgb(random.randrange(0,255), random.randrange(0,255), random.randrange(0,255))
-    embed=discord.Embed(title="Commands", description="", color=color)
-    embed.set_thumbnail(url="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/twitter/282/face-with-spiral-eyes_1f635-200d-1f4ab.png")
-    embed.add_field(name=f"{primary_prefix}ping", value="See the latency of the bot in ms.", inline=False)
-    embed.add_field(name=f"{primary_prefix}penis", value="How big is yours?\n`.penis @user`", inline=False)
-    embed.add_field(name=f"{primary_prefix}whoasked", value="A command to find who asked.", inline=False)
-    embed.add_field(name=f"{primary_prefix}sniper", value="Shows the most recent deleted message, so you can hold what people say against them even after they delete it.", inline=False)
-    embed.add_field(name=f"{primary_prefix}snipelist", value="Shows the 5 most recent deleted messages. Most recent on top", inline=False)
-    embed.add_field(name=f"{primary_prefix}editsnipe", value="Shows the most recent edited message.", inline=False)
-    embed.add_field(name=f"{primary_prefix}translate", value="Translates whatever text you input into bad english.\n`.translate <insert text here>`", inline=False)
-    embed.add_field(name=f"{primary_prefix}about", value="Shows some information about the bot :man_shrugging:", inline=False)
-    embed.set_footer(text="nghfnhghnghfnghf")
-    await ctx.send(embed=embed)
-
 @bot.command(name = "commands")
 @nobl()
 async def _commands(ctx):
@@ -561,11 +331,6 @@ async def _commands(ctx):
 async def restart(ctx):
     await ctx.message.add_reaction(Emojis.hourglass)
     os.execl(sys.executable, sys.executable, *sys.argv)
-
-@bot.command(name = "time", aliases = ["unix"])
-@nobl()
-async def _time(ctx):
-    await ctx.reply(f"**{datetime.now().strftime('%A, %B %d, %Y %I:%M %p')}**\nTimestamp: **{math.floor(time.time())}**\nWarning: This time is based on the system time of the person who is running the bot. If he/she is in another timezone, or has experienced time dilation by going near a black hole or by travelling at near-light speed, this time may be inaccurate for you.")
 
 @bot.command()
 @nobl()
@@ -627,13 +392,8 @@ async def echo(ctx, *msg):
 
 @bot.event
 async def on_ready():
-    global t, police
-    police = False
-
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="you"))
     print('[' + str(time.strftime("%H:%M:%S", time.localtime())) + "] bot is now running")
-    
-    t = math.floor(time.time()) # record time at which bot started running
     
     channel = bot.get_channel(1118259599393443942) # automatically join vc
     _channel = await channel.connect()
@@ -721,64 +481,6 @@ async def e(ctx, *expression):
     embed.set_footer(text=f'evaluated in {math.floor((time.time() - tbegin) * 1000)} ms')
     await ctx.send(embed=embed)
 
-@bot.command(name = "police")
-@staff()
-async def _police(ctx):
-    global police
-    police = not police
-    await ctx.send(f"police mode is now `{police}`")
-
-@bot.command()
-@dev()
-async def send_news(ctx: commands.Context, channel: int):
-    channel = bot.get_channel(channel)
-    
-    news_file = open("news.txt")
-    news_message = news_file.read()
-    news_paragraphs = news_message.split("\n\n")
-    
-    for paragraph in news_paragraphs:
-        await channel.send(paragraph + "\n​")
-        await asyncio.sleep(1)
-
-"""
-# @tasks.loop(seconds=10)
-async def check_for_dead_channel():
-    while True:
-        for id in open("tracking_channels.txt", "r").read().split("\n"):
-            if not id.strip():
-                continue
-            channel = await bot.fetch_channel(int(id))
-            last_msg = [ch async for ch in channel.history(limit=1)]
-            if not last_msg:
-                await channel.send("first")
-            
-            elif last_msg[0].author.id == 895318267151929405 and last_msg[0].content.startswith("dead chat X"):
-                break
-
-            if (datetime.now().replace(tzinfo=None) - last_msg[0].created_at.replace(tzinfo=None)).seconds >= 10:
-                await channel.send(f"dead chat X{'D' * random.randrange(0,10)}")
-        await asyncio.sleep(10)
-"""
-
-"""
-@bot.command(name = "track", aliases = ["deadchattrack", "deadchat"])
-@dev()
-async def _track(ctx, channel: discord.TextChannel = None):
-    try:
-        with open("tracking_channels.txt", "a") as file:
-            file.write("\n")
-            if not channel:
-                ch = ctx.channel.id
-            else:
-                ch = channel.id
-            file.write(str(ch))
-            file.close()
-        await ctx.message.add_reaction(Emojis.check_mark)
-    except:
-        await ctx.message.add_reaction(Emojis.cross_mark)
-"""
-
 # handler for when a message is sent
 @bot.event
 async def on_message(message):
@@ -834,13 +536,6 @@ async def on_message(message):
         original_msg = await message.channel.fetch_message(ratio.reference.message_id)
         await original_msg.add_reaction(Emojis.thumbs_up)
 
-@bot.command(name = "val")
-@dev()
-async def _val(ctx, value: float):
-    global val
-    val = value
-    await ctx.message.add_reaction(Emojis.check_mark)
-
 @bot.command(name = "dox", aliases = ["doxx"])
 async def dox_command(ctx, user: discord.User):
     msg: discord.Message = await ctx.send("Waiting...")
@@ -862,159 +557,6 @@ async def dox_command(ctx, user: discord.User):
     embed.set_footer(text = "for legal reasons this is a joke (but is it really?)")
 
     await msg.edit(content="", embed=embed)
-
-@bot.command()
-@nobl()
-async def convert(ctx, value: float, currency = None):
-    if not currency:
-        embed = discord.Embed(title = "JAYD-USD Converter", description = f"${value:,.2f} USD ≈ 😹{to_jayd(value):,.2f} Jayd Dollar\n😹{value:,.2f} Jayd Dollar ≈ ${to_usd(value):,.2f} USD")
-        embed.set_footer(text = f"Conversion rate: 1 Jayd Dollar = ${USD_TO_JAYD_CONVERSION_RATE:,.3f} USD")
-        await ctx.reply(embed = embed)
-        return
-    elif currency.lower() in ("jayd", "jay", "j", "jayd dollar", "😹", ":joy_cat:"):
-        embed = discord.Embed(title = "Jayd Dollar to USD", description = f"😹{value:,.2f} Jayd Dollar ≈ ${to_usd(value):,.2f} USD")
-    elif currency.lower() in ("usd", "us", "us dollar", "$", "dollar"):
-        embed = discord.Embed(title = "USD to Jayd Dollar", description = f"${value:,.2f} USD ≈ 😹{to_jayd(value):,.2f} Jayd Dollar")
-    else:
-        await ctx.reply(f"idiot, re-do this command but this time do it like this:\n```{primary_prefix}convert 250 Jayd```\n```{primary_prefix}convert 1500 USD```")
-        return
-    embed.set_footer(text = f"Conversion rate: 1 Jayd Dollar = ${USD_TO_JAYD_CONVERSION_RATE:,.3f} USD")
-    await ctx.reply(embed = embed)
-
-@bot.command()
-@dev()
-async def test(ctx, *args):
-    await translate(ctx, " ".join(args))
-
-@bot.command()
-@nobl()
-async def nitro(ctx, user: discord.User = None):
-    code = ''.join([random.choice(ascii_lowercase + ascii_uppercase + digits) for i in range(24)])
-    if not user:
-        user = ctx.author
-        await ctx.reply("Check your DMs for free nitro!")
-        await user.send(f"https://discord.gift/{code}")
-        await asyncio.sleep(1)
-        await user.send("Nitro sent to you by: yourself\nNote: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link")
-    else:
-        await ctx.message.add_reaction(Emojis.check_mark)
-        await user.send(f"https://discord.gift/{code}")
-        await asyncio.sleep(1)
-        await user.send(f"Nitro sent to you by: {ctx.author}\nNote: this has an approximately 0.0000000000000000000000000000000000000000096% chance of being a real nitro link")
-
-@bot.command(name = "mock")
-@nobl()
-async def _mock(ctx, *args):
-    await ctx.reply(mockstring(' '.join(args)))
-
-@bot.command(name = "ghostping", aliases = ["ghost_ping"])
-@nobl()
-async def _ghost_ping(ctx, user: discord.User):
-    try:
-        await ctx.message.delete()
-    except (discord.errors.Forbidden, discord.errors.NotFound):
-        pass
-    msg = await ctx.send(user.mention)
-    await msg.delete()
-
-@bot.command(name = "change_name_of_everybody_in_the_server")
-@dev()
-async def name(ctx):
-    if not ctx.guild.me.guild_permissions.manage_nicknames:
-        await ctx.message.add_reaction(Emojis.cross_mark)
-        return
-    await ctx.message.add_reaction(Emojis.hourglass)
-    for member in ctx.guild.members:
-        try:
-            await member.edit(nick = get_name())
-        except discord.errors.Forbidden:
-            await ctx.message.add_reaction(Emojis.warning)
-        except discord.errors.HTTPException:
-            pass
-    await ctx.message.add_reaction(Emojis.check_mark)
-    await asyncio.sleep(1)
-    await ctx.message.clear_reactions()
-
-@bot.command(name = "crawl")
-@dev()
-async def _crawl(ctx, *url):
-    if not url:
-        url = None
-    else:
-        url = " ".join(url)
-
-    await ctx.message.add_reaction(Emojis.hourglass)
-
-    w = Wikicrawler(url)
-
-    history = await w.crawl()
-
-    if w.exit_code == 0:
-        if len(history) == 1:
-            path = "Philosophy"
-        else:
-            path = ' → '.join(history)
-        embed = discord.Embed(title = "Wikipedia Crawler", description = f"```{path}```")
-        embed.set_footer(text = f"If you go to a Wikipedia article, click on the first link in the page, and repeatedly click the first links in subsequent pages, you will (mostly) reach the page for Philosophy. Here, it took {w.steps} redirects to get to Philosophy")
-        await ctx.reply(embed=embed)
-    else:
-        match w.exit_code:
-            case 1:
-                await ctx.reply(f"It seems that <{w.entry}> is not a valid Wikipedia page.")
-            case 2:
-                await ctx.reply(f"It seems that following the first URL of every page starting from <{w.entry}> results in a loop.")
-            case 3:
-                await ctx.reply(f"It seems that <{w.entry}> leads to a disambiguation page.\nA disambiguation Wikipedia page is a page with multiple different articles with similar titles.")
-            case 4:
-                await ctx.reply(f"It seems that following the first URL of every page starting from <{w.entry}> results in a dead end.")
-
-@bot.command(name = "search", aliases = ["google", "wikipedia"])
-@nobl()
-async def _search(ctx, *url):
-    url = ' '.join(url)
-    url = url.replace(" ", "_").capitalize()
-    if not url.startswith("https://en.wikipedia.org/wiki/"):
-        url = "https://en.wikipedia.org/wiki/" + url
-    await ctx.reply("Warning: This command is in beta. Please expect it to be extremely broken")
-    crawler = Crawler(url)
-    crawler.search_paragraphs()
-    try:
-        if crawler.disambiguation:
-            name = url.replace("https://en.wikipedia.org/wiki/", "")
-            
-            formatted = '\n- '.join(crawler.results)
-            await ctx.reply(f"{name} may refer to the following:\n- {formatted}\n\n")
-        else:
-            formatted = '\n\n'.join(crawler.results)
-            await ctx.reply(f"{formatted[:500]}\n\n")
-    except discord.errors.HTTPException:
-        await ctx.reply("you are such a bozo, the link you sent was invalid")
-
-@bot.command(name = "score", aliases = ["bal", "balance"])
-@nobl()
-async def _score(ctx, user: discord.User = None):
-    if not user:
-        user = ctx.author
-    await asyncio.sleep(0.1)
-    score = "{:,.0f}".format(load_data()[str(user.id)]["score"])
-    await ctx.reply(f"Your social credit score: {score}")
-
-@bot.command(name = "leaderboard", aliases = ["lb", "top"])
-@nobl()
-async def _leaderboard(ctx, *args):
-    table = load_data()
-    scores = list(table.values())
-    scores.sort(key=lambda a: a["score"], reverse=True)
-    lb_string = ""
-    for i, row in enumerate(scores):
-        user = bot.get_user(int(row['id']))
-        if user is None:
-            continue
-        user = user.display_name
-        score = row["score"]
-        lb_string += f"{user}: {score:,.0f}\n"
-    embed = discord.Embed(title="Top users", description=lb_string.strip())
-    await ctx.reply(embed=embed)
 
 @bot.command(name = "sokoban", aliases = ["soko", "blockpush"])
 @nobl()
