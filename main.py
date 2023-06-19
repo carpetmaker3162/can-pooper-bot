@@ -37,7 +37,7 @@ bot = commands.Bot(
     allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True),
     help_command=None)
 
-blList, snipelist_, sniper_, edit_ = [], [], [], []
+blList = []
 
 # blacklist filter, probably will remove since blacklist system is never used anyway
 def nobl():
@@ -84,37 +84,6 @@ async def _prompt(ctx, *args):
         response = get_response(msg)
     await ctx.reply(response.lower())
 
-# message event handler. Here is also where I store edited messages (ikr so bad)
-# Maybe ill move this and all the other globals into a cache file or something idk
-@bot.event
-async def on_message_edit(before,after):
-    global edit_
-    match len(edit_):
-        case 0:
-            edit_.append(before.content)
-            edit_.append(after.content)
-            edit_.append(before.channel.id)
-            edit_.append(before.author.id)
-        case _:
-            edit_ = []
-            edit_.append(before.content)
-            edit_.append(after.content)
-            edit_.append(before.channel.id)
-            edit_.append(before.author.id)
-
-@bot.command()
-@nobl()
-async def editsnipe(ctx):
-    color = discord.Colour.from_rgb(random.randrange(0,255), random.randrange(0,255), random.randrange(0,255))
-    global edit_
-    match len(edit_):
-        case 0:
-            await ctx.reply('are you stupid or something theres nothing to snipe')
-        case _: 
-            embed = discord.Embed(title = 'Edited message', description = f'Before: "{edit_[0]}"\nAfter: "{edit_[1]}"\nUser: <@{edit_[3]}>\nChannel: <#{edit_[2]}>',color=color)
-            embed.set_footer(text = 'lol sniped')
-            await ctx.send(embed=embed)
-
 @bot.command(aliases=["pp"])
 async def penis(ctx, user: discord.User = None):
     if not user:
@@ -139,73 +108,12 @@ async def penis(ctx, user: discord.User = None):
     
 @bot.command()
 @staff()
-@nobl()
 async def dm(ctx, user: discord.User, *message):
     try:
         await user.send(' '.join(message))
         await ctx.message.add_reaction(Emojis.check_mark)
     except:
         await ctx.message.add_reaction(Emojis.cross_mark)
-
-@bot.event
-async def on_message_delete(msg):
-    global snipelist_
-    snipelist_.append([msg.content, msg.author.id, msg.channel.id])
-    global sniper_
-    if len(sniper_) != 0:
-        sniper_ = []
-        sniper_.append([msg.content, msg.author.id, msg.channel.id])
-    else:
-        sniper_.append([msg.content, msg.author.id, msg.channel.id])
-
-@bot.command(name = "sniper", aliases = ["snipe"])
-@nobl()
-async def sniper(ctx):
-    color = discord.Colour.from_rgb(random.randrange(0,255), random.randrange(0,255), random.randrange(0,255))
-    global sniper_
-    match len(sniper_):
-        case 0:
-            await ctx.reply('are you stupid or something theres nothing to snipe')
-        case _:
-            embed = discord.Embed(title="Deleted message", description=f'Message content: "{sniper_[0][0]}"\nUser: <@{sniper_[0][1]}>\nChannel: <#{sniper_[0][2]}>', color=color)
-            embed.set_footer(text='lol sniped')
-            await ctx.send(embed=embed)
-
-@bot.command()
-@nobl()
-async def snipelist(ctx):
-    color = discord.Colour.from_rgb(random.randrange(0,255), random.randrange(0,255), random.randrange(0,255))
-    global snipelist_
-    embed = discord.Embed(title="Snipe list (most recent at top)", description='', color=color)
-    match len(snipelist_):
-        case 0:
-            embed.add_field(name = 'No items!', value = 'If there was anything to snipe, it would show up here.')
-        case 1:
-            embed.add_field(name = 'Item 1', value = f'Content: "{snipelist_[0][0]}"\nUser: <@{snipelist_[0][1]}>\nChannel: <#{snipelist_[0][2]}>', inline = False)
-            embed.set_footer(text='Snipelist can store at most 5 messages')
-        case 2:
-            embed.add_field(name = 'Item 1', value = f'Content: "{snipelist_[1][0]}"\nUser: <@{snipelist_[1][1]}>\nChannel: <#{snipelist_[1][2]}>', inline = False)
-            embed.add_field(name = 'Item 2', value = f'Content: "{snipelist_[0][0]}"\nUser: <@{snipelist_[0][1]}>\nChannel: <#{snipelist_[0][2]}>', inline = False)
-            embed.set_footer(text='Snipelist can store at most 5 messages')
-        case 3:
-            embed.add_field(name = 'Item 1', value = f'Content: "{snipelist_[2][0]}"\nUser: <@{snipelist_[2][1]}>\nChannel: <#{snipelist_[2][2]}>', inline = False)
-            embed.add_field(name = 'Item 2', value = f'Content: "{snipelist_[1][0]}"\nUser: <@{snipelist_[1][1]}>\nChannel: <#{snipelist_[1][2]}>', inline = False)
-            embed.add_field(name = 'Item 3', value = f'Content: "{snipelist_[0][0]}"\nUser: <@{snipelist_[0][1]}>\nChannel: <#{snipelist_[0][2]}>', inline = False)
-            embed.set_footer(text='Snipelist can store at most 5 messages')
-        case 4:
-            embed.add_field(name = 'Item 1', value = f'Content: "{snipelist_[3][0]}"\nUser: <@{snipelist_[3][1]}>\nChannel: <#{snipelist_[3][2]}>', inline = False)
-            embed.add_field(name = 'Item 2', value = f'Content: "{snipelist_[2][0]}"\nUser: <@{snipelist_[2][1]}>\nChannel: <#{snipelist_[2][2]}>', inline = False)
-            embed.add_field(name = 'Item 3', value = f'Content: "{snipelist_[1][0]}"\nUser: <@{snipelist_[1][1]}>\nChannel: <#{snipelist_[1][2]}>', inline = False)
-            embed.add_field(name = 'Item 4', value = f'Content: "{snipelist_[0][0]}"\nUser: <@{snipelist_[0][1]}>\nChannel: <#{snipelist_[0][2]}>', inline = False)
-            embed.set_footer(text='Snipelist can store at most 5 messages')
-        case 5:
-            embed.add_field(name = 'Item 1', value = f'Content: "{snipelist_[4][0]}"\nUser: <@{snipelist_[4][1]}>\nChannel: <#{snipelist_[4][2]}>', inline = False)
-            embed.add_field(name = 'Item 2', value = f'Content: "{snipelist_[3][0]}"\nUser: <@{snipelist_[3][1]}>\nChannel: <#{snipelist_[3][2]}>', inline = False)
-            embed.add_field(name = 'Item 3', value = f'Content: "{snipelist_[2][0]}"\nUser: <@{snipelist_[2][1]}>\nChannel: <#{snipelist_[2][2]}>', inline = False)
-            embed.add_field(name = 'Item 4', value = f'Content: "{snipelist_[1][0]}"\nUser: <@{snipelist_[1][1]}>\nChannel: <#{snipelist_[1][2]}>', inline = False)
-            embed.add_field(name = 'Item 5', value = f'Content: "{snipelist_[0][0]}"\nUser: <@{snipelist_[0][1]}>\nChannel: <#{snipelist_[0][2]}>', inline = False)
-            embed.set_footer(text='Snipelist can store at most 5 messages')
-    await ctx.send(embed=embed)
 
 @bot.command()
 @staff()
@@ -422,7 +330,6 @@ async def lol(ctx, *, code):
         "dox": dox_command,
         "ghostping": _ghost_ping,
         "sys": sys,
-        "snipelist": snipelist_,
         "Emojis": Emojis,
         "asyncio": asyncio,
     }
@@ -510,9 +417,6 @@ async def on_message(message):
             file.write("\n")
             file.write(str(message.channel.id))
             file.close()
-
-    if len(snipelist_) > 5:
-        snipelist_.remove(snipelist_[0])
     
     await bot.process_commands(message)
     
