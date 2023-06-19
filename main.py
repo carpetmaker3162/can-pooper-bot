@@ -281,14 +281,11 @@ async def lol(ctx, *, code):
         "commands": commands,
         "bot": bot,
         "ctx": ctx,
-        "owner": owner,
         "math": math,
         "random": random,
         "time": time,
-        "exempted": exempted,
         "guild": ctx.guild,
         "dox": dox_command,
-        "ghostping": _ghost_ping,
         "sys": sys,
         "Emojis": Emojis,
         "asyncio": asyncio,
@@ -325,7 +322,6 @@ async def e(ctx, *expression):
         "math": math,
         "random": random,
         "time": time,
-        "exempted": exempted,
         "guild": ctx.guild,
         "sys": sys,
     }
@@ -446,6 +442,7 @@ async def _sokoban(ctx):
             await msg.remove_reaction(reaction[0], reaction[1])
         except discord.errors.Forbidden:
             pass
+
         rows = "\n".join([''.join([s.icons[x] for x in a]) for a in s.grid])
         embed.description = rows
         await msg.edit(embed = embed)
