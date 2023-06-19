@@ -35,8 +35,6 @@ bot = commands.Bot(
 
 PRINT_MESSAGES = False
 
-# these 3 are permissions decorators
-# for example, if you see @staff() in front of a command, it means only staff can run
 def owner():
     group = (
         Users.progamrer,

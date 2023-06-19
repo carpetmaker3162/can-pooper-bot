@@ -87,21 +87,6 @@ class Hangman:
                 return -2
 
 WORD_CHOICES = {
-    "people": [
-        "anthony huang",
-        "mazin ghizali",
-        "mazin",
-        "can pooper",
-        "null",
-        "neng li",
-        "liangyue zhao",
-        "deshpande",
-        "shiva",
-        "jay mardikar",
-        "yue",
-        "fhdbot",
-        "fhdhgngn",
-    ],
     "random": [],
     "food": [
         "deez nuts",
