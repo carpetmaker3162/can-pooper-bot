@@ -10,6 +10,3 @@ def product(s):
     for i in s:
         res *= i
     return res
-
-def round_to_5(s):
-    return round(s/5) * 5

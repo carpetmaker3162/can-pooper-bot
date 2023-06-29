@@ -1,30 +1,28 @@
 import discord
 from discord.ext import commands
-from discord.ext import tasks
 
 import os
 import sys
 import time
-from datetime import datetime, date
 import math
 import random
-from string import ascii_uppercase, ascii_lowercase, digits
 import io
-import re
-from itertools import combinations, cycle
 from contextlib import redirect_stdout
 from textwrap import indent
 from traceback import format_exception
 import asyncio
+import json
+import re
 
 from src.translate import translate
-from src.hangman import Hangman, WORD_CHOICES, FIGURES
+from src.hangman import Hangman, WORD_CHOICES
 from src.sokoban import Sokoban, SOKOBAN_GAMES
 from src.dox import Doxxer
 from src.data import update_data, load_data
 from src.prompt import get_response
-from src.consts import Users, Groups, Emojis, StEndings, StTypes, LWORDS
-from src.methods import substring, product, round_to_5
+from src.consts import Users, Emojis, LWORDS
+from src.methods import substring, product
+from src.trader import SimulationWrapper, save, Trader
 
 primary_prefix = "!"
 bot = commands.Bot(
@@ -34,6 +32,9 @@ bot = commands.Bot(
     help_command=None)
 
 PRINT_MESSAGES = False
+initialized = False
+SYMBOLS = {"🔴": 0, "🔵": 1, "🟢": 2, "🟡": 3}
+trader = Trader(SimulationWrapper((100, 100, 100, 100)), 1, 1)
 
 def owner():
     group = (
@@ -58,11 +59,131 @@ def staff():
         Users.hello,
         Users.jayd,
         Users.catvader,
-        Users.fhd,
     )
     def am(ctx):
         return ctx.message.author.id in group
     return commands.check(am)
+
+@bot.command(name="init")
+async def _init(ctx):
+    """
+    Balance of: can pooper
+
+    Net worth: $10000.0
+    Liquidated Cash: $10000.0
+    """
+    global initialized
+    if initialized:
+        await ctx.reply("already initialized")
+        return
+    
+    initialized = True
+
+    global trade_data
+    global sim
+    sim = SimulationWrapper((100, 100, 100, 100))
+    
+    with open("trade_info.json") as f:
+        txt = f.read()
+        trade_data = json.loads(txt)
+    
+    channel = ctx.channel
+    await channel.send("0bal")
+
+    def check_bal(msg):
+        return "net worth" in msg.content.lower() and msg.author.id == 1089316626257690696
+
+    def check_prices(msg):
+        if msg.author.id != 1089316626257690696:
+            return False
+        #for symbol in SYMBOLS:
+        #    if symbol not in msg.content:
+        #        return False
+        return "until next update" in msg.content.lower()
+    
+    try:
+        response_msg = await bot.wait_for("message", check=check_bal, timeout=10)
+    except asyncio.TimeoutError:
+        await ctx.reply("You sure the bot is on? (Stopped)")
+        initialized = False
+        return
+
+    owned = [False] * 4
+
+    for line in response_msg.content.lower().split("\n"):
+        if not line: 
+            continue
+        if line.startswith("liquidated cash: $"):
+            # get amount of liquidated cash
+            matches = re.findall(r'[-+]?\d*\.\d+|\d+', line)
+            if matches:
+                bal = float(matches[0])
+            else:
+                bal = 0
+            trade_data["bal"] = bal
+        elif line[0] in SYMBOLS:
+            # get amount of currently owned stocks
+            stock = SYMBOLS[line[0]]
+            matches = re.findall(r'\d+', line)
+            if matches:
+                amount = int(matches[0])
+            else:
+                amount = 0
+            trade_data["inv"][str(stock)] = amount
+            owned[stock] = True
+
+    for stock in SYMBOLS.values():
+        if not owned[stock]:
+            trade_data["inv"][str(stock)] = 0
+
+    global trader
+    trader = Trader(sim, profit_take=1.12, loss_limit=0.9)
+    trader.bal = float(trade_data["bal"])
+    trader.inv = list(trade_data["inv"].values())
+    trader.outgoing_trades = trade_data["history"]
+
+    while True:
+        await ctx.send("0prices")
+        try:
+            response_msg = await bot.wait_for("message", check=check_prices, timeout=10)
+        except asyncio.TimeoutError:
+            await ctx.reply("You sure the bot is on? (Stopped)")
+            initialized = False
+            return
+        
+        # get current prices and update to sim
+        prices = re.findall(r'[-+]?\d*\.\d+|\d+', response_msg.content)
+        if "until next update" in response_msg.content:
+            prices.pop(0)
+        sim.prices = tuple(map(float, prices))
+        
+        # update trader and update locally stored trade data
+        actions = trader.update()
+        trade_data["history"] = trader.outgoing_trades
+        trade_data["bal"] = trader.bal
+        for i, k in enumerate(trade_data["inv"]):
+            trade_data["inv"][k] = trader.inv[i]
+        save(trade_data)
+
+        # send sale commands
+        for stock, count in actions["sell"]:
+            count = int(count)
+            if count == 0:
+                continue
+            symbol = list(SYMBOLS.keys())[stock]
+            await ctx.send(f"0sell {symbol} {count}")
+            await asyncio.sleep(1)
+        
+        # send purchase commands
+        for stock, count in actions["buy"]:
+            count = int(count)
+            if count == 0:
+                continue
+            symbol = list(SYMBOLS.keys())[stock]
+            await ctx.send(f"0buy {symbol} {count}")
+            await asyncio.sleep(1)
+            
+        await asyncio.sleep(60)
 
 @bot.command(name="prompt")
 async def _prompt(ctx, *args):
@@ -155,7 +276,6 @@ async def _hangman(ctx, *_category):
     embed = discord.Embed(title="Hangman")
     embed.set_footer(text=f"{ctx.author} | say 'EXIT' to run away like a coward")
     while True:
-        #embed.description = f"```\n{FIGURES[h.life]}\n\nCategory: {category}\nWord: {' '.join(h.configuration)}\nWrong guesses: {', '.join(h.wrong_guesses)}```"
         embed.description = f"```Category: {category}\nWord: {' '.join(h.configuration)}\nWrong guesses: {', '.join(h.wrong_guesses)}```"
         embed.title = f"Hangman (Lives left: {6-h.life})"
         await ctx.send(content=f"{ctx.author.mention}", embed=embed)
@@ -221,7 +341,7 @@ async def _death(ctx, *person: discord.Member):
         other = True
     msg = await ctx.reply("Calculating...")
     current_time = math.floor(time.time())
-    random.seed(person.id / 7) # 13
+    random.seed(person.id / 7)
     val = random.random()
     if val < 0.01:
         add_years = random.randrange(1200, 604800)
@@ -239,7 +359,6 @@ async def _death(ctx, *person: discord.Member):
         embed = discord.Embed(title="", description=f"**You** will die <t:{current_time + add_years}:R>")
     else:
         embed = discord.Embed(title="", description=f"**{person}** will die <t:{current_time + add_years}:R>")
-    embed.set_footer(text="note that can pooper is just a badly written discord bot so dont take this seriously lol")
     await msg.edit(embed=embed)
 
 @bot.command()
@@ -255,12 +374,17 @@ async def say(ctx, channelid, *msg):
 
 @bot.command()
 async def echo(ctx, *msg):
+    message = " ".join(msg)
+    for command in ["0buy", "0sell"]:
+        if command in message.lower() and ctx.author.id != 672892838995820553:
+            await ctx.reply("bruh")
+            return
     if ctx.author.id in [672892838995820553, 650439182204010496]:
         try: 
             await ctx.message.delete()
         except discord.errors.Forbidden:
             pass
-    await ctx.send(" ".join(msg))
+    await ctx.send(message)
 
 @bot.event
 async def on_ready():
@@ -269,7 +393,7 @@ async def on_ready():
     
     channel = bot.get_channel(1118259599393443942) # automatically join vc
     _channel = await channel.connect()
-    _channel.play(discord.FFmpegPCMAudio('./res/rick_roll.mp3'))
+    # _channel.play(discord.FFmpegPCMAudio('./res/rick_roll.mp3'))
 
 @bot.command(name="eval", aliases=["exec", "lol"])
 @owner()
@@ -287,6 +411,7 @@ async def lol(ctx, *, code):
         "sys": sys,
         "Emojis": Emojis,
         "asyncio": asyncio,
+        "trader": trader
     }
     
     buffer = io.StringIO()
@@ -322,6 +447,7 @@ async def e(ctx, *expression):
         "time": time,
         "guild": ctx.guild,
         "sys": sys,
+        "trader": trader,
     }
     expression = ' '.join(expression)
     try:
@@ -345,23 +471,53 @@ async def on_message(message):
         try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
         except: print("possibly a dm\n")
 
+    prefixes = ["!", "lol ", "Lol "]
+    for i in prefixes:
+        if message.content.startswith(i):
+            print(f'--------\n{message.author}: {message.content}\nChannel: ', end='')
+            try: print(f'{message.channel} ({message.channel.id})\nGuild: {message.guild.name}\n')
+            except: print("possibly a dm\n")
+
     if message.author.bot:
         return
  
-    if message.content.removeprefix(primary_prefix).strip().lower().split()[0] in [str(cmnd) for cmnd in bot.commands]:
-        user_data = load_data()
-        if str(message.author.id) not in user_data.keys():
-            user_data[str(message.author.id)] = {
-                "id": message.author.id,
-                "score": 0,
-            }
-            update_data(user_data)
+    user_data = load_data()
+    if str(message.author.id) not in user_data.keys():
+        user_data[str(message.author.id)] = {
+            "id": message.author.id,
+            "score": 0,
+        }
+        update_data(user_data)
     
     await bot.process_commands(message)
 
+@bot.command(name = "score", aliases = ["bal", "balance"])
+async def _score(ctx, user: discord.User = None):
+    if not user:
+        user = ctx.author
+    await asyncio.sleep(0.1)
+    score = "{:,.0f}".format(load_data()[str(user.id)]["score"])
+    await ctx.reply(f"Your social credit score: {score}")
+
+@bot.command(name = "leaderboard", aliases = ["lb", "top"])
+async def _leaderboard(ctx, *args):
+    table = load_data()
+    scores = list(table.values())
+    scores.sort(key=lambda a: a["score"], reverse=True)
+    lb_string = ""
+    for i, row in enumerate(scores):
+        user = bot.get_user(int(row['id']))
+        if user is None:
+            continue
+        user = user.display_name
+        score = row["score"]
+        lb_string += f"{user}: {score:,.0f}\n"
+    embed = discord.Embed(title="Top users", description=lb_string.strip())
+    await ctx.reply(embed=embed)
+
 @bot.command(name = "dox", aliases = ["doxx"])
 async def dox_command(ctx, user: discord.User):
-    msg: discord.Message = await ctx.send("Waiting...")
+    msg = await ctx.send("Waiting...")
     await asyncio.sleep(2)
     doxxer = Doxxer(user.id / 3)
 

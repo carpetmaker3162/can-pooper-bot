@@ -1,58 +1,6 @@
 import random
 from src.consts import LWORDS
 
-FIGURES = [
-r"""
- |-----
- |    
- |    
- |      
-_|_
-""",
-r"""
- |-----
- |    O
- |    
- |      
-_|_
-""",
-r"""
- |-----
- |    O
- |    |
- |      
-_|_
-""",
-r"""
- |-----
- |    O
- |    |\
- |      
-_|_
-""",
-r"""
- |-----
- |    O
- |   /|\
- |      
-_|_
-""",
-r"""
- |-----
- |    O
- |   /|\
- |     \
-_|_
-""",
-r"""
- |-----
- |    O
- |   /|\
- |   / \
-_|_
-""",
-]
-
 class Hangman:
     def __init__(self, target_word) -> None:
         self.target = target_word
@@ -98,7 +46,6 @@ WORD_CHOICES = {
         "cock",
         "chicken",
         "beef",
-        "abcdefghijklmnopqrstuvwxyz"
     ],
     "countries": [
         "afghanistan",
